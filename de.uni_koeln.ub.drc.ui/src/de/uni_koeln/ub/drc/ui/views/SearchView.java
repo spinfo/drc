@@ -7,6 +7,11 @@
  *************************************************************************************************/
 package de.uni_koeln.ub.drc.ui.views;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,9 +19,19 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.annotation.PostConstruct;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -46,6 +61,11 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.part.ViewPart;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import scala.Enumeration;
 import scala.collection.JavaConversions;
@@ -61,7 +81,6 @@ import de.uni_koeln.ub.drc.data.Word;
 import de.uni_koeln.ub.drc.ui.DrcUiActivator;
 import de.uni_koeln.ub.drc.ui.Messages;
 import de.uni_koeln.ub.drc.util.Chapter;
-import de.uni_koeln.ub.drc.util.Count;
 import de.uni_koeln.ub.drc.util.MetsTransformer;
 
 /**
@@ -347,21 +366,46 @@ public final class SearchView extends ViewPart {
 	}
 
 	private void setCurrentPageLabel(Page page) {
+		// currentPageLabel
+		// .setText(String.format(
+		// Messages.get().CurrentPageVolume
+		//								+ " %s, " + Messages.get().Page + " %s", volumes.getItem(volumes.getSelectionIndex()), //$NON-NLS-1$ //$NON-NLS-2$
+		// mets.label(page.number())));
+		// close.setSelection(page.done());
 		currentPageLabel
 				.setText(String.format(
 						Messages.get().CurrentPageVolume
 								+ " %s, " + Messages.get().Page + " %s", volumes.getItem(volumes.getSelectionIndex()), //$NON-NLS-1$ //$NON-NLS-2$
-						mets.label(page.number())));
+						physMap.get(page.id())));
 		close.setSelection(page.done());
 	}
 
 	private void select(String pageId) {
 		Page page = page(pageId);
-		Chapter chapter = mets.chapters(page.number(), Count.File()).head();
+		Chapter chapter = new Chapter(0, 0, ""); //$NON-NLS-1$
+		if (chapters != null) {
+			boolean flag = false;
+			for (Chapter c : chapters.keySet()) {
+				List<Object> list = chapters.get(c);
+				for (Object o : list) {
+					String id = o instanceof Page ? ((Page) o).id() : new Page(
+							null, (String) o).id();
+					if (pageId.equals(id)) {
+						chapter = c;
+						flag = true;
+						break;
+					}
+				}
+				if (flag)
+					break;
+			}
+		}
+		// Chapter chapter = mets.chapters(page.number(), Count.File()).head();
 		TreeItem[] items = viewer.getTree().getItems();
 		for (TreeItem treeItem : items) {
 			if (treeItem.getText(3).contains(chapter.title())) {
 				treeItem.setExpanded(true);
+				break;
 			}
 		}
 		viewer.refresh(chapter);
@@ -430,7 +474,6 @@ public final class SearchView extends ViewPart {
 									index = allPages.indexOf(page.id());
 									setCurrentPageLabel(page);
 								}
-
 							}
 						});
 			}
@@ -491,14 +534,14 @@ public final class SearchView extends ViewPart {
 				});
 	}
 
-	private void pingCollection(final String current, final Page page,
+	private void pingCollection(final String selectedVolume, final Page page,
 			final XmlDb db) {
 		/* Ping the collection in the background to avoid delay on first save: */
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				db.putXml(page.toXml(), Index.DefaultCollection()
-						+ "/" + current, page.id()); //$NON-NLS-1$
+						+ "/" + selectedVolume, page.id()); //$NON-NLS-1$
 			}
 		}).start();
 	}
@@ -508,6 +551,8 @@ public final class SearchView extends ViewPart {
 	}
 
 	private SearchViewModelProvider content = null;
+
+	private Map<String, String> physMap;
 
 	private final class SearchViewModelProvider {
 
@@ -623,44 +668,216 @@ public final class SearchView extends ViewPart {
 	}
 
 	private void load() {
-		String current = selected(volumes);
+		String selectedVolume = selected(volumes);
 		XmlDb db = DrcUiActivator.getDefault().db();
-		if (content == null || !current.equals(last)) {
+		if (content == null || !selectedVolume.equals(last)) {
 			loadData();
 			allPages = new ArrayList<String>(
 					JavaConversions.asJavaList(content.modelIndex.pages()));
-			pingCollection(current, page(allPages.get(0)), db);
+			pingCollection(selectedVolume, page(allPages.get(0)), db);
 			Collections.sort(allPages);
 		}
-		last = current;
+		last = selectedVolume;
 		Object[] pages = content.getPages(searchField.getText().trim()
 				.toLowerCase());
 		Arrays.sort(pages, comp);
 		chapters = new TreeMap<Chapter, List<Object>>();
-		boolean meta = true;
+
+		// boolean meta = true;
+		// try {
+		//			mets = new MetsTransformer(selectedVolume + ".xml", db); //$NON-NLS-1$
+		// } catch (NullPointerException x) {
+		// // No matadata available for selected volume
+		// meta = false;
+		// }
+		// for (Object page : pages) {
+		// int fileNumber = page instanceof Page ? ((Page) page).number()
+		// : new Page(null, (String) page).number();
+		// List<Chapter> chaptersForPage = meta ? /**/
+		// JavaConversions.asJavaList(mets.chapters(fileNumber, Count.File()))
+		// : Arrays.asList(new Chapter(0, 1, Messages.get().NoMeta));
+		// for (Chapter chapter : chaptersForPage) {
+		// List<Object> pagesInChapter = chapters.get(chapter);
+		// if (pagesInChapter == null) {
+		// pagesInChapter = new ArrayList<Object>();
+		// chapters.put(chapter, pagesInChapter);
+		// }
+		// pagesInChapter.add(page);
+		// }
+		// }
+
 		try {
-			mets = new MetsTransformer(current + ".xml", db); //$NON-NLS-1$
-		} catch (NullPointerException x) {
-			// No matadata available for selected volume
-			meta = false;
+			chapters = getChapters(selectedVolume, pages);
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		for (Object page : pages) {
-			int fileNumber = page instanceof Page ? ((Page) page).number()
-					: new Page(null, (String) page).number();
-			List<Chapter> chaptersForPage = meta ? /**/
-			JavaConversions.asJavaList(mets.chapters(fileNumber, Count.File()))
-					: Arrays.asList(new Chapter(0, 1, Messages.get().NoMeta));
-			for (Chapter chapter : chaptersForPage) {
-				List<Object> pagesInChapter = chapters.get(chapter);
-				if (pagesInChapter == null) {
-					pagesInChapter = new ArrayList<Object>();
-					chapters.put(chapter, pagesInChapter);
-				}
-				pagesInChapter.add(page);
-			}
-		}
+		// Use if no compressed meta data is available
+		// generateXML();
 		viewer.setInput(chapters);
 		updateResultCount(pages.length);
+	}
+
+	private Map<Chapter, List<Object>> getChapters(final String selectedVolume,
+			final Object[] pages) throws ParserConfigurationException,
+			SAXException, IOException {
+
+		// use pageIDs for filtering by search result
+		ArrayList<String> pageIDs = new ArrayList<String>();
+		for (Object page : pages) {
+			String pageID = page instanceof Page ? ((Page) page).id()
+					: new Page(null, (String) page).id();
+			pageIDs.add(pageID);
+		}
+
+		Map<Chapter, List<Object>> chapters = new TreeMap<Chapter, List<Object>>();
+		physMap = new TreeMap<String, String>();
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		Document doc = dBuilder.parse(getInputStream(selectedVolume));
+		doc.getDocumentElement().normalize();
+		NodeList nodeList = doc.getElementsByTagName(XmlAttributes.Chapter
+				.toString().toLowerCase());
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node node = nodeList.item(i);
+			if (node.getNodeType() == Node.ELEMENT_NODE) {
+				Element element = (Element) node;
+				String chapterTitle = element.getAttribute(XmlAttributes.Title
+						.toString().toLowerCase());
+				int chapterNumber = Integer.parseInt(element
+						.getAttribute(XmlAttributes.Number.toString()
+								.toLowerCase()));
+				String s = selectedVolume
+						.substring(13, selectedVolume.length()).replaceAll(
+								"[^\\d]", "");//$NON-NLS-1$ //$NON-NLS-2$
+				Chapter c = new Chapter(Integer.parseInt(s), chapterNumber,
+						chapterTitle);
+				NodeList childNodes = element.getChildNodes();
+				List<Object> list = new ArrayList<Object>();
+				for (int j = 0; j < childNodes.getLength(); j++) {
+					Node child = childNodes.item(j);
+					if (child.getNodeType() == Node.ELEMENT_NODE) {
+						Element e = (Element) child;
+						String pageID = e.getAttribute(XmlAttributes.Id
+								.toString().toLowerCase());
+						String physID = e.getAttribute(XmlAttributes.PhysId
+								.toString().toLowerCase());
+						physMap.put(pageID, physID);
+						if (pageIDs.contains(pageID)) // filter by search result
+							list.add(pageID);
+					}
+					if (!list.isEmpty()) // non-empty chapters only
+						chapters.put(c, list);
+				}
+			}
+		}
+		return chapters;
+	}
+
+	enum XmlAttributes {
+		Chapter, Id, Number, Page, PhysId, Title, Volume
+	}
+
+	private InputStream getInputStream(String selectedVolume) {
+		InputStream openStream = null;
+		try {
+			XmlDb db = DrcUiActivator.getDefault().db();
+			URL url = new URL(db.restRoot() + "drc/drc-meta-comp/" //$NON-NLS-1$
+					+ selectedVolume + ".xml");//$NON-NLS-1$
+			openStream = url.openStream();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return openStream;
+	}
+
+	@SuppressWarnings("unused")
+	private void generateXML() {
+		Document doc = getDocument();
+		String volume = last;
+		Element volumeElement = createVolumeElement(doc, volume);
+		Set<Chapter> keySet = chapters.keySet();
+		for (Chapter chapter : keySet) {
+			Element chapterElement = createChapterElement(doc, volumeElement,
+					chapter);
+			List<Object> list = chapters.get(chapter);
+			for (Object object : list) {
+				String id = object instanceof Page ? ((Page) object).id()
+						: new Page(null, (String) object).id();
+				int number = object instanceof Page ? ((Page) object).number()
+						: new Page(null, (String) object).number();
+				createPageElement(doc, chapterElement, id, number);
+			}
+		}
+		writeToXML(doc, volume);
+	}
+
+	private void writeToXML(final Document doc, final String volume) {
+		TransformerFactory transformerFactory = TransformerFactory
+				.newInstance();
+		Transformer transformer;
+		try {
+			transformer = transformerFactory.newTransformer();
+			DOMSource source = new DOMSource(doc);
+			StreamResult result = new StreamResult(new File(
+			//"C:\\" + volume + ".xml")); //$NON-NLS-1$ //$NON-NLS-2$
+					"/drc-meta/" + volume + ".xml")); //$NON-NLS-1$ //$NON-NLS-2$
+			transformer.transform(source, result);
+		} catch (TransformerConfigurationException e) {
+			e.printStackTrace();
+		} catch (TransformerException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void createPageElement(final Document doc,
+			final Element chapterElement, final String pageID, final int number) {
+		Element pageElement = doc.createElement(XmlAttributes.Id.toString()
+				.toLowerCase());
+		pageElement.setAttribute(XmlAttributes.Id.toString().toLowerCase(),
+				pageID);
+		pageElement.setAttribute(XmlAttributes.PhysId.toString().toLowerCase(),
+				mets.label(number));
+		chapterElement.appendChild(pageElement);
+	}
+
+	private Element createChapterElement(final Document doc,
+			final Element volumeElement, final Chapter chapter) {
+		Element chapterElement = doc.createElement(XmlAttributes.Chapter
+				.toString().toLowerCase());
+		volumeElement.appendChild(chapterElement);
+		chapterElement.setAttribute(XmlAttributes.Title.toString()
+				.toLowerCase(), chapter.title());
+		chapterElement.setAttribute(XmlAttributes.Number.toString()
+				.toLowerCase(), String.valueOf(chapter.number()));
+		return chapterElement;
+	}
+
+	private Element createVolumeElement(final Document doc, final String title) {
+		Element volume = doc.createElement(XmlAttributes.Volume.toString()
+				.toLowerCase());
+		doc.appendChild(volume);
+		volume.setAttribute(XmlAttributes.Title.toString().toLowerCase(), title);
+		return volume;
+	}
+
+	private Document getDocument() {
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory
+				.newInstance();
+		DocumentBuilder docBuilder;
+		Document doc = null;
+		try {
+			docBuilder = docFactory.newDocumentBuilder();
+			doc = docBuilder.newDocument();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+		return doc;
 	}
 
 	private final class SearchViewLabelProvider extends LabelProvider implements
@@ -674,9 +891,10 @@ public final class SearchView extends ViewPart {
 				return isPage(element) ? volumes.getItem(volumes
 						.getSelectionIndex()) : ""; //$NON-NLS-1$
 			case 2:
-				return isPage(element) && mets != null ? mets.label(asPage(
-						element).number())
-						+ "" : ""; //$NON-NLS-1$ //$NON-NLS-2$
+				// return isPage(element) && mets != null ? mets.label(asPage(
+				// element).number()) + "" : ""; //$NON-NLS-1$ //$NON-NLS-2$
+				return isPage(element) ? physMap.get(((Page) element).id())
+						: ""; //$NON-NLS-1$
 			case 3: {
 				if (isPage(element)) {
 					String text = asPage(element).toText("|"); //$NON-NLS-1$

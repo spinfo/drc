@@ -249,7 +249,7 @@ class MetsTransformer(xml: Elem, name: String = "") {
       val logIds = if (linkMap.contains(physId)) linkMap(physId)
       else List()
       if (logMap.contains(logId)) { // only if in logMap
-      linkMap += physId -> (logId :: logIds) // prepend latest hit
+        linkMap += physId -> (logId :: logIds) // prepend latest hit
       }
     }
     linkMap
