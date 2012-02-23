@@ -15,9 +15,9 @@ import org.eclipse.ui.contexts.IContextService;
 /**
  * @author Mihail Atanassov (matana)
  */
-public class Perspective implements IPerspectiveFactory {
+public class PerspectiveAlternative implements IPerspectiveFactory {
 
-	private static final String Perspective_CONTEXT_ID = "de.uni_koeln.ub.drc.ui.perspectivecontext"; //$NON-NLS-1$
+	private static final String Perspective_CONTEXT_ID = "de.uni_koeln.ub.drc.ui.alternativecontext"; //$NON-NLS-1$
 
 	@Override
 	public void createInitialLayout(IPageLayout layout) {

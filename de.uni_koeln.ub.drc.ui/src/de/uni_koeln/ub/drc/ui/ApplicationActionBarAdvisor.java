@@ -35,14 +35,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	 * in the fill methods.
 	 */
 
-	// private IWorkbenchAction exitAction;
-
 	@Override
 	protected void makeActions(IWorkbenchWindow window) {
-		// Creates the actions and registers them. Registering also
-		// provides automatic disposal of the actions when the window is closed.
-		// exitAction = ActionFactory.QUIT.create(window);
-		// register(exitAction);
+		// Commands are registered in plugin.xml
 	}
 
 	@Override

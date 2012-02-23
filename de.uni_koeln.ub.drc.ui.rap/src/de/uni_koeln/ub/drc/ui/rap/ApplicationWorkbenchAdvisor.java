@@ -122,7 +122,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 					// solution
 					JavaScriptResponseWriter writer = ContextProvider
 							.getStateInfo().getResponseWriter();
-					String url = "http://www.crestomazia.ch/"; //$NON-NLS-1$
+					String url = "http://www.crestomazia.ch/application/users"; //$NON-NLS-1$
 					writer.write("window.location.href=\"" + url + "\";"); //$NON-NLS-1$ //$NON-NLS-2$
 					RWT.getRequest().getSession().setMaxInactiveInterval(1);
 					RWT.getLifeCycle().removePhaseListener(this);

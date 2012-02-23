@@ -33,26 +33,28 @@ import de.uni_koeln.ub.drc.ui.Messages;
 /**
  * This workbench advisor creates the window advisor, and specifies the
  * perspective id for the initial window.
+ * 
+ * @author Mihail Atanassov (matana)
+ * 
  */
-@SuppressWarnings("restriction")
 public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 	private static final String JAAS_CONFIG_FILE = "jaas_config"; //$NON-NLS-1$
 	private ILoginContext loginContext;
-	private static final String PERSPECTIVE_ID = "de.uni_koeln.ub.drc.ui.perspective";
+	private static final String PERSPECTIVE_ID = "de.uni_koeln.ub.drc.ui.perspective"; //$NON-NLS-1$
 
+	@Override
 	public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
 			IWorkbenchWindowConfigurer configurer) {
 		return new ApplicationWorkbenchWindowAdvisor(configurer);
 	}
 
 	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void initialize(IWorkbenchConfigurer configurer) {
 		super.initialize(configurer);
 		Bundle b = FrameworkUtil.getBundle(getClass());
 		BundleContext context = b.getBundleContext();
-		ServiceReference serviceRef = context
+		ServiceReference<?> serviceRef = context
 				.getServiceReference(IThemeManager.class.getName());
 		IThemeManager themeManager = (IThemeManager) context
 				.getService(serviceRef);
@@ -68,6 +70,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		}
 	}
 
+	@Override
 	public String getInitialWindowPerspectiveId() {
 		return PERSPECTIVE_ID;
 	}
@@ -86,7 +89,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 	private void login(BundleContext bundleContext) throws Exception {
 		String configName = "SIMPLE"; //$NON-NLS-1$
-		System.out.println("bundleContext : "
+		System.out.println("bundleContext : " //$NON-NLS-1$
 				+ bundleContext.getClass().getName().toLowerCase());
 		URL configUrl = bundleContext.getBundle().getEntry(JAAS_CONFIG_FILE);
 		loginContext = LoginContextFactory.createContext(configName, configUrl);

@@ -400,6 +400,7 @@ public final class SearchView extends ViewPart {
 					break;
 			}
 		}
+
 		// Chapter chapter = mets.chapters(page.number(), Count.File()).head();
 		TreeItem[] items = viewer.getTree().getItems();
 		for (TreeItem treeItem : items) {
@@ -694,7 +695,8 @@ public final class SearchView extends ViewPart {
 		// int fileNumber = page instanceof Page ? ((Page) page).number()
 		// : new Page(null, (String) page).number();
 		// List<Chapter> chaptersForPage = meta ? /**/
-		// JavaConversions.asJavaList(mets.chapters(fileNumber, Count.File()))
+		// JavaConversions.asJavaList(mets.chapters(fileNumber,
+		// Count.File()))
 		// : Arrays.asList(new Chapter(0, 1, Messages.get().NoMeta));
 		// for (Chapter chapter : chaptersForPage) {
 		// List<Object> pagesInChapter = chapters.get(chapter);
@@ -706,6 +708,9 @@ public final class SearchView extends ViewPart {
 		// }
 		// }
 
+		// Use if no compressed meta data is available
+		// generateXML();
+
 		try {
 			chapters = getChapters(selectedVolume, pages);
 		} catch (ParserConfigurationException e) {
@@ -715,8 +720,6 @@ public final class SearchView extends ViewPart {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		// Use if no compressed meta data is available
-		// generateXML();
 		viewer.setInput(chapters);
 		updateResultCount(pages.length);
 	}
@@ -724,23 +727,11 @@ public final class SearchView extends ViewPart {
 	private Map<Chapter, List<Object>> getChapters(final String selectedVolume,
 			final Object[] pages) throws ParserConfigurationException,
 			SAXException, IOException {
-
 		// use pageIDs for filtering by search result
-		ArrayList<String> pageIDs = new ArrayList<String>();
-		for (Object page : pages) {
-			String pageID = page instanceof Page ? ((Page) page).id()
-					: new Page(null, (String) page).id();
-			pageIDs.add(pageID);
-		}
-
+		ArrayList<String> pageIDs = grabCurrentPages(pages);
 		Map<Chapter, List<Object>> chapters = new TreeMap<Chapter, List<Object>>();
 		physMap = new TreeMap<String, String>();
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = dBuilder.parse(getInputStream(selectedVolume));
-		doc.getDocumentElement().normalize();
-		NodeList nodeList = doc.getElementsByTagName(XmlAttributes.Chapter
-				.toString().toLowerCase());
+		NodeList nodeList = getNodeList(selectedVolume);
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node node = nodeList.item(i);
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -775,6 +766,15 @@ public final class SearchView extends ViewPart {
 			}
 		}
 		return chapters;
+	}
+
+	private ArrayList<String> grabCurrentPages(final Object[] pages) {
+		ArrayList<String> pageIDs = new ArrayList<String>();
+		for (Object page : pages) {
+			pageIDs.add(page instanceof Page ? ((Page) page).id() : new Page(
+					null, (String) page).id());
+		}
+		return pageIDs;
 	}
 
 	enum XmlAttributes {
@@ -826,7 +826,7 @@ public final class SearchView extends ViewPart {
 			DOMSource source = new DOMSource(doc);
 			StreamResult result = new StreamResult(new File(
 			//"C:\\" + volume + ".xml")); //$NON-NLS-1$ //$NON-NLS-2$
-					"/drc-meta/" + volume + ".xml")); //$NON-NLS-1$ //$NON-NLS-2$
+					"~/drc-meta/" + volume + ".xml")); //$NON-NLS-1$ //$NON-NLS-2$
 			transformer.transform(source, result);
 		} catch (TransformerConfigurationException e) {
 			e.printStackTrace();
@@ -878,6 +878,17 @@ public final class SearchView extends ViewPart {
 			e.printStackTrace();
 		}
 		return doc;
+	}
+
+	private NodeList getNodeList(final String selectedVolume)
+			throws ParserConfigurationException, SAXException, IOException {
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		Document doc = dBuilder.parse(getInputStream(selectedVolume));
+		doc.getDocumentElement().normalize();
+		NodeList nodeList = doc.getElementsByTagName(XmlAttributes.Chapter
+				.toString().toLowerCase());
+		return nodeList;
 	}
 
 	private final class SearchViewLabelProvider extends LabelProvider implements
