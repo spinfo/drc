@@ -76,7 +76,7 @@ views.faq.more = Weitere Hilfe erhalten Sie unter
 ##  index.html  ##
 ##################
 
-views.index.text.1 = <p>Helfen Sie mit, die Chrestomathie originalgetreu und fehlerfrei zugänglich zu machen: <a href="%1s">Melden Sie sich an</a> und laden Sie die aktuelle <a target="_blank" href="%2s">Beta-Version</a> des Editors für Windows oder Mac, oder partizipieren Sie an der Entwicklung auf <a target="_blank" href="%3s">GitHub</a>. <p>Hinweise zur Benutzung des Editors finden sie <a href="%4s">hier</a>.</p>
+views.index.text.1 = <p>Helfen Sie mit, die Chrestomathie originalgetreu und fehlerfrei zugänglich zu machen: <a href="%1s">Melden Sie sich an</a> und nutzen Sie den <a href="%2s">Web-basierten Editor</a> oder laden Sie die aktuelle <a target="_blank" href="%3s">Beta-Version</a> des Editors für Windows, Mac oder Linux - oder partizipieren Sie an der Entwicklung auf <a target="_blank" href="%4s">GitHub</a>. <p>Hinweise zur Benutzung des Editors finden sie <a href="%5s">hier</a>.</p>
 
 views.index.text.2 = Helfen Sie mit: <a href="%1s">Melden Sie sich an</a> und laden Sie die aktuelle <a target="_blank" href="%2s">Beta-Version</a> des Editors für Windows oder Mac, oder partizipieren Sie an der Entwicklung auf <a target="_blank" href="%3s">GitHub</a>.
 
