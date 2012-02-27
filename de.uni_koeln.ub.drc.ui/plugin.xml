@@ -28,49 +28,49 @@
             class="de.uni_koeln.ub.drc.ui.views.SearchView"
             icon="icons/part_search.gif"
             id="de.uni_koeln.ub.drc.ui.views.searchview"
-            name="SearchView"
+            name="%Navigate"
             restorable="true">
       </view>
       <view
             class="de.uni_koeln.ub.drc.ui.views.CheckView"
             icon="icons/part_check.gif"
             id="de.uni_koeln.ub.drc.ui.views.checkview"
-            name="CheckView"
+            name="%Check"
             restorable="true">
       </view>
       <view
             class="de.uni_koeln.ub.drc.ui.views.SpecialCharacterView"
             icon="icons/part_chars.gif"
             id="de.uni_koeln.ub.drc.ui.views.specialcharacterview"
-            name="SpecialCharacterView"
+            name="%SpecialCharacters"
             restorable="true">
       </view>
       <view
             class="de.uni_koeln.ub.drc.ui.views.EditView"
             icon="icons/part_edit.gif"
             id="de.uni_koeln.ub.drc.ui.views.editview"
-            name="EditView"
+            name="%Edit"
             restorable="true">
       </view>
       <view
             class="de.uni_koeln.ub.drc.ui.views.CommentsView"
             icon="icons/part_comments.gif"
             id="de.uni_koeln.ub.drc.ui.views.commentsview"
-            name="CommentsView"
+            name="%Comments"
             restorable="true">
       </view>
       <view
             class="de.uni_koeln.ub.drc.ui.views.WordView"
             icon="icons/part_history.gif"
             id="de.uni_koeln.ub.drc.ui.views.wordview"
-            name="WordView"
+            name="%WordHistory"
             restorable="true">
       </view>
       <view
             class="de.uni_koeln.ub.drc.ui.views.TagView"
             icon="icons/part_tags.gif"
             id="de.uni_koeln.ub.drc.ui.views.tagview"
-            name="TagView"
+            name="%Tags"
             restorable="true">
       </view>
       <view
@@ -144,7 +144,7 @@
                label="Layout">
             <command
                   commandId="org.eclipse.ui.perspectives.showPerspective"
-                  label="Layout auswählen"
+                  label="%SelectLayout"
                   style="push">
             </command>
          </menu>
