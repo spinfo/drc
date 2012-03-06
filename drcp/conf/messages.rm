@@ -76,7 +76,8 @@ views.faq.more = Ulteriur agid survegnis Vus sut
 ##  index.html  ##
 ##################
 
-views.index.text.1 = <p>Gidai era Vus a render accessibla la Crestomazia online fidaivla a l’original e senza sbagls: As <a href="%1s">annunziai</a> e telechargiai la <a target="_blank" href="%2s">versiun beta actuala</a> da l’editur per Windows u Mac ubain faschai in’atgna versiun sin <a target="_blank" href="%3s">GitHub</a>.<p>Agids per ils utilisaders chattais Vus <a href="%4s">qua</a>. </p>
+
+views.index.text.1 = <p>Gidai era Vus a render accessibla la Crestomazia online fidaivla a l’original e senza sbagls: As <a href="%1s">annunziai</a> ed utilisai <a href="%2s">l’editur online</a> ubain telechargiai la <a target="_blank" href="%3s">versiun beta actuala</a> da l’editur per Windows, Mac u Linux ubain faschai in’atgna versiun sin <a target="_blank" href="%4s">GitHub</a>.<p>Agids per ils utilisaders chattais Vus <a href="%5s">qua</a>. </p>
 
 views.index.text.2 = As participai era Vus: <a href="%1s">As annunziai</a> e telechargiai la <a target="_blank" href="%2s">versiun beta actuala</a> da l’editur per Windows u Mac ubain faschai in’atgna versiun sin <a target="_blank" href="%3s">GitHub</a>.
 
@@ -151,7 +152,8 @@ views.signup.region = Lieu:
 views.user.summary = Puncts: %1s (ha tractà %2s pleds, ha revalità %3s, ha svalità %4s, è vegnì revalità %5s giadas, è vegnì svalità %6s giadas)
 views.user.region = Regiun: 
 views.user.last.edited = Ultima modificaziun: Tom %1s, pagina %2s
-views.user.start = Gidai: chargiai la <a target="_blank" href="%2s">versiun beta actuala</a> da l' editur per Windows u per Mac e curregi! 
+views.user.start = Gidai: utilisai <a href="%1s">l’editur online</a> ubain chargiai la <a target="_blank" href="%2s">versiun beta actuala</a> da l' editur per Windows, Mac u Linux e curregi! 
+views.user.edit = Edit user data
 
 ##################
 ##  users.html  ##
@@ -159,8 +161,7 @@ views.user.start = Gidai: chargiai la <a target="_blank" href="%2s">versiun beta
 
 views.users = Utilisaders
 views.users.participate = Sa participar
-views.users.text = As participai era Vus: <a href="%1s">As annunziai</a> e telechargiai la <a target="_blank" href="%2s">versiun beta actuala</a> da l’editur per Windows u Mac.
-views.user.edit = Edit user data
+views.users.text = As participai era Vus: <a href="%1s">As annunziai</a> ed utilisai <a href="%2s">l’editur online</a> ubain telechargiai la <a target="_blank" href="%3s">versiun beta actuala</a> da l’editur per Windows, Mac u Linux.
 
 ##################
 ##   main.html  ##
@@ -197,7 +198,7 @@ views.press.news.6 = <a href="%1s" target="_blank">La Crestomazia en la rait (La
 views.press.news.7 = <a href="%1s" target="_blank">La Crestomazia accessibla a mintgin (La Quotidiana, 07.06.2011)</a>
 views.press.news.8 = <a href="%1s" target="_blank">Romanische Sprachschätze per Mausklick (Bündner Tagblatt, 07.06.2011)</a>
 views.press.news.9 = <a href="%1s" target="_blank">Gemeinsam an der Überlieferung arbeiten (NZZ Nr. 175, 29.07.2011, S.10)</a>
-views.press.news.10 = <a href="%1s" target="_blank">Buna partizipaziun e blers contacts (La Quotidiana, 02.09.2011, S.11)</a>
+views.press.news.10 = <a href="%1s" target="_blank">Buna partecipaziun e blers contacts (La Quotidiana, 02.09.2011, S.11)</a>
 
 views.press.publ.1 = <a href="%1s" target="_blank">Digitale Rätoromanische Chrestomathie - Eine réécriture communautaire</a><br /> (Gastvortrag an der Universität Zürich, 09.12.2010)
 views.press.publ.2 = "Stai si, defenda, Romontsch, tiu vegl lungatg" - Digitalisierung als Mittel kultureller Selbstermächtigung kleinerer Sprachgemeinschaften<br /> (Vortrag im Rahmen der "Languagetalks 2011", LMU München, 16.-18. Februar 2011)

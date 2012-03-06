@@ -201,6 +201,10 @@ class MetsTransformer(xml: Elem, name: String = "") {
         else if (loc.contains("_0024") &&
           (subdiv \ "@ID").toString() == "log5") {
           addToLogMap(subdiv, label)
+        } //special case #3: recognize misspelled label "crestomathie" in vol. III (0014_02)
+        else if (parentLabel.contains("Crestomathie")) {
+          fullTitle = parentLabel
+          addToLogMap(subdiv, label)
         }
         //default: correct metadata
         if (parentLabel.contains("Chrestomathie")) {
