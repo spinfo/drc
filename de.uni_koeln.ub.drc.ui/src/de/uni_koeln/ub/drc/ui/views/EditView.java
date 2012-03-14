@@ -195,7 +195,8 @@ public final class EditView extends ViewPart implements ISaveablePart {
 					addToHistory(text);
 					monitor.worked(1);
 				}
-				saveToXml(page);
+				User user = DrcUiActivator.getDefault().currentUser();
+				saveToXml(page, user);
 				plainTextCopy(page);
 				DrcUiActivator.find(SearchView.class).updateTreeViewer();
 				Text text = editComposite.getPrev();
@@ -254,10 +255,9 @@ public final class EditView extends ViewPart implements ISaveablePart {
 		setDirty(false);
 	}
 
-	private void saveToXml(final Page page) {
-		System.out.println("Saving page: " + page); //$NON-NLS-1$
-		page.saveToDb(DrcUiActivator.getDefault().currentUser().collection(),
-				DrcUiActivator.getDefault().db());
+	private void saveToXml(final Page page, User user) {
+		//System.out.println("Saving page: " + page); //$NON-NLS-1$
+		page.saveToDb(user.collection(), DrcUiActivator.getDefault().db());
 	}
 
 }

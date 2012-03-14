@@ -370,7 +370,8 @@ public final class SearchView extends ViewPart {
 		// .setText(String.format(
 		// Messages.get().CurrentPageVolume
 		//								+ " %s, " + Messages.get().Page + " %s", volumes.getItem(volumes.getSelectionIndex()), //$NON-NLS-1$ //$NON-NLS-2$
-		// mets.label(page.number())));
+		// mets != null ? mets.label(page.number()) /**/
+		// : page.number()));// no meta: use number as label
 		// close.setSelection(page.done());
 		currentPageLabel
 				.setText(String.format(
@@ -688,8 +689,9 @@ public final class SearchView extends ViewPart {
 		// try {
 		//			mets = new MetsTransformer(selectedVolume + ".xml", db); //$NON-NLS-1$
 		// } catch (NullPointerException x) {
-		// // No matadata available for selected volume
+		// // No metadata available for selected volume
 		// meta = false;
+		// mets = null; // prevent using existing mets
 		// }
 		// for (Object page : pages) {
 		// int fileNumber = page instanceof Page ? ((Page) page).number()
@@ -841,8 +843,9 @@ public final class SearchView extends ViewPart {
 				.toLowerCase());
 		pageElement.setAttribute(XmlAttributes.Id.toString().toLowerCase(),
 				pageID);
+		// no meta available: use number as page label
 		pageElement.setAttribute(XmlAttributes.PhysId.toString().toLowerCase(),
-				mets.label(number));
+				(mets != null ? mets.label(number) : String.valueOf(number)));
 		chapterElement.appendChild(pageElement);
 	}
 
@@ -902,6 +905,8 @@ public final class SearchView extends ViewPart {
 				return isPage(element) ? volumes.getItem(volumes
 						.getSelectionIndex()) : ""; //$NON-NLS-1$
 			case 2:
+				// if (mets == null)// no metadata available (e.g. vol. 0014_RC)
+				//					return isPage(element) ? ((Page) element).number() + "" : ""; //$NON-NLS-1$ //$NON-NLS-2$
 				// return isPage(element) && mets != null ? mets.label(asPage(
 				// element).number()) + "" : ""; //$NON-NLS-1$ //$NON-NLS-2$
 				return isPage(element) ? physMap.get(((Page) element).id())

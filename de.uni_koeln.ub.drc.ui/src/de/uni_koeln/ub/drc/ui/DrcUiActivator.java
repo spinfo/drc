@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.security.auth.ILoginContext;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.rwt.SessionSingletonBase;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
@@ -47,7 +48,7 @@ public class DrcUiActivator extends Plugin {
 	// The shared instance
 	private static DrcUiActivator plugin;
 	private XmlDb db;
-	private ILoginContext loginContext;
+	private SessionContextKeeper keeper = new SessionContextKeeper(); // multi-user handling
 	private SearchView searchView;
 	private BundleContext context;
 
@@ -132,7 +133,7 @@ public class DrcUiActivator extends Plugin {
 	 * @return The context for the logged in user.
 	 */
 	public ILoginContext getLoginContext() {
-		return loginContext;
+		return keeper.getContext().getLoginContext(); //session based login context
 	}
 
 	/**
@@ -147,13 +148,26 @@ public class DrcUiActivator extends Plugin {
 		ImageDescriptor desc = ImageDescriptor.createFromURL(url);
 		return desc.createImage();
 	}
-
+	
+	/**
+	 * Keeps track of actual user sessions
+	 */
+	class SessionContextKeeper extends SessionSingletonBase {
+		
+		/**
+		 * @return The session context for the logged in user.
+		 */
+		public SessionContext getContext() {
+			return (SessionContext) getInstance(SessionContext.class);
+		}
+	}
+	
 	/**
 	 * @param loginContext
 	 *            The ILoginContext
 	 */
 	public void setLoginContext(ILoginContext loginContext) {
-		this.loginContext = loginContext;
+		keeper.getContext().setLoginContext(loginContext);	//session based
 		this.searchView.setInput();
 		this.searchView.select();
 	}
