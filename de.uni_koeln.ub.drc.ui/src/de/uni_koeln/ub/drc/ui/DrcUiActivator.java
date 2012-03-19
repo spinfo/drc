@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.security.auth.ILoginContext;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.rwt.SessionSingletonBase;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
@@ -30,13 +29,15 @@ import com.quui.sinist.XmlDb;
 
 import de.uni_koeln.ub.drc.data.Index;
 import de.uni_koeln.ub.drc.data.User;
+import de.uni_koeln.ub.drc.ui.facades.SessionContextHelper;
 import de.uni_koeln.ub.drc.ui.views.SearchView;
 
 /**
  * The activator class controls the plug-in life cycle
  */
 /**
- * @author Fabian Steeg (fsteeg), Mihail Atanassov (matana)
+ * @author Fabian Steeg (fsteeg), Mihail Atanassov (matana), Claes Neuefeind
+ *         (claesn)
  * 
  */
 public class DrcUiActivator extends Plugin {
@@ -48,7 +49,6 @@ public class DrcUiActivator extends Plugin {
 	// The shared instance
 	private static DrcUiActivator plugin;
 	private XmlDb db;
-	private SessionContextKeeper keeper = new SessionContextKeeper(); // multi-user handling
 	private SearchView searchView;
 	private BundleContext context;
 
@@ -133,7 +133,7 @@ public class DrcUiActivator extends Plugin {
 	 * @return The context for the logged in user.
 	 */
 	public ILoginContext getLoginContext() {
-		return keeper.getContext().getLoginContext(); //session based login context
+		return SessionContextHelper.getContext().getLoginContext();
 	}
 
 	/**
@@ -148,26 +148,13 @@ public class DrcUiActivator extends Plugin {
 		ImageDescriptor desc = ImageDescriptor.createFromURL(url);
 		return desc.createImage();
 	}
-	
-	/**
-	 * Keeps track of actual user sessions
-	 */
-	class SessionContextKeeper extends SessionSingletonBase {
-		
-		/**
-		 * @return The session context for the logged in user.
-		 */
-		public SessionContext getContext() {
-			return (SessionContext) getInstance(SessionContext.class);
-		}
-	}
-	
+
 	/**
 	 * @param loginContext
 	 *            The ILoginContext
 	 */
 	public void setLoginContext(ILoginContext loginContext) {
-		keeper.getContext().setLoginContext(loginContext);	//session based
+		SessionContextHelper.getContext().setLoginContext(loginContext);
 		this.searchView.setInput();
 		this.searchView.select();
 	}
