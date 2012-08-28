@@ -39,11 +39,12 @@ import de.uni_koeln.ub.drc.data.Modification;
 import de.uni_koeln.ub.drc.data.Page;
 import de.uni_koeln.ub.drc.data.User;
 import de.uni_koeln.ub.drc.data.Word;
-import de.uni_koeln.ub.drc.ui.DrcUiActivator;
 import de.uni_koeln.ub.drc.ui.Messages;
 import de.uni_koeln.ub.drc.ui.facades.IDialogConstantsHelper;
 import de.uni_koeln.ub.drc.ui.facades.ScrolledCompositeHelper;
+import de.uni_koeln.ub.drc.ui.facades.SessionContextSingleton;
 import de.uni_koeln.ub.drc.ui.facades.TextHelper;
+import de.uni_koeln.ub.drc.ui.util.ViewPartFinder;
 import de.uni_koeln.ub.drc.util.PlainTextCopy;
 
 /**
@@ -153,8 +154,8 @@ public final class EditView extends ViewPart implements ISaveablePart {
 						sc.setMinHeight(editComposite.computeSize(SWT.DEFAULT,
 								SWT.DEFAULT).y);
 						if (page.id().equals(
-								DrcUiActivator.getDefault().currentUser()
-										.latestPage())) {
+								SessionContextSingleton.getInstance()
+										.getCurrentUser().latestPage())) {
 							focusLatestWord();
 						}
 					}
@@ -167,10 +168,11 @@ public final class EditView extends ViewPart implements ISaveablePart {
 	void focusLatestWord() {
 		if (editComposite != null && editComposite.getWords() != null) {
 			Text text = editComposite.getWords().get(
-					DrcUiActivator.getDefault().currentUser().latestWord());
+					SessionContextSingleton.getInstance().getCurrentUser()
+							.latestWord());
 			text.setFocus();
 			sc.showControl(text);
-			CheckView view = DrcUiActivator.find(CheckView.class);
+			CheckView view = ViewPartFinder.find(CheckView.class);
 			view.setSelection(text);
 		}
 	}
@@ -195,13 +197,14 @@ public final class EditView extends ViewPart implements ISaveablePart {
 					addToHistory(text);
 					monitor.worked(1);
 				}
-				User user = DrcUiActivator.getDefault().currentUser();
+				User user = SessionContextSingleton.getInstance()
+						.getCurrentUser();
 				saveToXml(page, user);
 				plainTextCopy(page);
-				DrcUiActivator.find(SearchView.class).updateTreeViewer();
+				ViewPartFinder.find(SearchView.class).updateTreeViewer();
 				Text text = editComposite.getPrev();
 				Word word = (Word) text.getData(Word.class.toString());
-				DrcUiActivator.find(WordView.class).selectedWord(word, text);
+				ViewPartFinder.find(WordView.class).selectedWord(word, text);
 			}
 
 			private void plainTextCopy(final Page page) {
@@ -211,7 +214,7 @@ public final class EditView extends ViewPart implements ISaveablePart {
 						String col = Index.DefaultCollection()
 								+ PlainTextCopy.suffix();
 						String vol = page.id().split("-")[0]; //$NON-NLS-1$
-						XmlDb db = DrcUiActivator.getDefault().db();
+						XmlDb db = SessionContextSingleton.getInstance().db();
 						System.out.printf("Copy text to '%s', '%s' in %s\n", //$NON-NLS-1$
 								col, vol, db);
 						PlainTextCopy.saveToDb(page, col, vol, db);
@@ -227,17 +230,20 @@ public final class EditView extends ViewPart implements ISaveablePart {
 				if (!newText.equals(oldMod.form())
 						&& !word.original().trim()
 								.equals(Page.ParagraphMarker())) {
-					User user = DrcUiActivator.getDefault().currentUser();
+					User user = SessionContextSingleton.getInstance()
+							.getCurrentUser();
 					if (!oldMod.author().equals(user.id())
 							&& !oldMod.voters().contains(user.id())) {
 						oldMod.downvote(user.id());
-						User.withId(Index.DefaultCollection(),
-								DrcUiActivator.getDefault().userDb(),
-								oldMod.author()).wasDownvoted();
+						User.withId(
+								Index.DefaultCollection(),
+								SessionContextSingleton.getInstance()
+										.getUserDb(), oldMod.author())
+								.wasDownvoted();
 					}
 					history.push(new Modification(newText, user.id()));
 					user.hasEdited();
-					user.save(DrcUiActivator.getDefault().userDb());
+					user.save(SessionContextSingleton.getInstance().getUserDb());
 					text.setFocus();
 				}
 			}
@@ -257,7 +263,8 @@ public final class EditView extends ViewPart implements ISaveablePart {
 
 	private void saveToXml(final Page page, User user) {
 		//System.out.println("Saving page: " + page); //$NON-NLS-1$
-		page.saveToDb(user.collection(), DrcUiActivator.getDefault().db());
+		page.saveToDb(user.collection(), SessionContextSingleton.getInstance()
+				.db());
 	}
 
 }

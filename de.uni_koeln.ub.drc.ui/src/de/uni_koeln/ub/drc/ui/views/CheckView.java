@@ -52,8 +52,8 @@ import de.uni_koeln.ub.drc.data.Box;
 import de.uni_koeln.ub.drc.data.Index;
 import de.uni_koeln.ub.drc.data.Page;
 import de.uni_koeln.ub.drc.data.Word;
-import de.uni_koeln.ub.drc.ui.DrcUiActivator;
 import de.uni_koeln.ub.drc.ui.Messages;
+import de.uni_koeln.ub.drc.ui.facades.SessionContextSingleton;
 
 /**
  * View containing the scanned page used to check the original word while
@@ -82,10 +82,8 @@ public final class CheckView extends ViewPart {
 	private Page page;
 	private Composite zoomBottom;
 	private Scale scale;
-	private float scaleFactor = 1;
+	private float scaleFactor = 0.3F;
 	private Image cachedImage;
-	private int originalHeight;
-	private int originalWidth;
 
 	@Override
 	public void setFocus() {
@@ -193,8 +191,7 @@ public final class CheckView extends ViewPart {
 	}
 
 	private void scrollTo(Word word) {
-		Point p = newOrigin(word.position(), originalHeight, originalWidth,
-				imageCanvas.getBackgroundImage());
+		Point p = newOrigin(word.position());
 		scrolledComposite.setOrigin(p);
 	}
 
@@ -214,7 +211,7 @@ public final class CheckView extends ViewPart {
 		scale.setOrientation(SWT.LEFT_TO_RIGHT);
 		scale.setMinimum(30);
 		scale.setMaximum(100);
-		scale.setSelection(100);
+		scale.setSelection(30);
 		scale.setToolTipText(Messages.get().ZoomToolTip);
 		addListenerToScaleWidget();
 	}
@@ -386,8 +383,7 @@ public final class CheckView extends ViewPart {
 					.getBounds().width, imageCanvas.getBackgroundImage()
 					.getBounds().height);
 			scrolledComposite.layout(true, true);
-			Point p = newOrigin(box, originalHeight, originalWidth,
-					imageCanvas.getBackgroundImage());
+			Point p = newOrigin(box);
 			scrolledComposite.setOrigin(p);
 		}
 	}
@@ -400,16 +396,13 @@ public final class CheckView extends ViewPart {
 			cachedImage = scaleImage(cachedImage);
 		}
 		imageCanvas.setBackgroundImage(cachedImage);
-		originalHeight = cachedImage.getBounds().height;
-		originalWidth = cachedImage.getBounds().width;
 	}
 
-	private Point newOrigin(Box box, int oldHeigt, int oldWidth, Image newImage) {
-		int height = newImage.getBounds().height;
-		int width = newImage.getBounds().width;
-		int x = ((oldWidth - width) / 2) + (int) (box.x() * scaleFactor);
-		int y = ((oldHeigt - height) / 2) + (int) (box.y() * scaleFactor);
-		return new Point(x - 25, y - 25);
+	private Point newOrigin(Box box) {
+		int x = (int) (box.x() * scaleFactor);
+		int y = (int) (box.y() * scaleFactor);
+		int minX = Math.min(x, (x / 2));
+		return new Point(x - minX, y - 65);
 	}
 
 	private Image scaleImage(final Image image) {
@@ -447,8 +440,9 @@ public final class CheckView extends ViewPart {
 
 	private InputStream getInputStream(final Page page) {
 		InputStream in = new BufferedInputStream(new ByteArrayInputStream(
-				Index.loadImageFor(DrcUiActivator.getDefault().currentUser()
-						.collection(), DrcUiActivator.getDefault().db(), page)));
+				Index.loadImageFor(SessionContextSingleton.getInstance()
+						.getCurrentUser().collection(), SessionContextSingleton
+						.getInstance().db(), page)));
 		return in;
 	}
 

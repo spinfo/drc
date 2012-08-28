@@ -41,8 +41,8 @@ import scala.collection.JavaConversions;
 import de.uni_koeln.ub.drc.data.Annotation;
 import de.uni_koeln.ub.drc.data.Page;
 import de.uni_koeln.ub.drc.data.Word;
-import de.uni_koeln.ub.drc.ui.DrcUiActivator;
 import de.uni_koeln.ub.drc.ui.Messages;
+import de.uni_koeln.ub.drc.ui.facades.SessionContextSingleton;
 import de.uni_koeln.ub.drc.ui.views.TagViewModel.TagViewContentProvider;
 import de.uni_koeln.ub.drc.ui.views.TagViewModel.TagViewLabelProvider;
 
@@ -130,7 +130,8 @@ public final class TagView extends ViewPart {
 		addTag = new Button(bottomComposite, SWT.PUSH | SWT.FLAT);
 		addTag.setEnabled(word != null);
 		addTag.setToolTipText(Messages.get().AddAnnotationTo);
-		addTag.setImage(DrcUiActivator.getDefault().loadImage("icons/add.gif")); //$NON-NLS-1$
+		addTag.setImage(SessionContextSingleton.getInstance().loadImage(
+				"icons/add.gif")); //$NON-NLS-1$
 		SelectionListener listener = new SelectionListener() {
 			@Override
 			// on button click
@@ -150,11 +151,13 @@ public final class TagView extends ViewPart {
 				if (inputKey != null && inputKey.trim().length() != 0
 						&& inputVal != null && inputVal.trim().length() != 0) {
 					word.annotations().$plus$eq(
-							new Annotation(inputKey, inputVal, DrcUiActivator
-									.getDefault().currentUser().id(), System
-									.currentTimeMillis()));
-					page.saveToDb(DrcUiActivator.getDefault().currentUser()
-							.collection(), DrcUiActivator.getDefault().db());
+							new Annotation(inputKey, inputVal,
+									SessionContextSingleton.getInstance()
+											.getCurrentUser().id(), System
+											.currentTimeMillis()));
+					page.saveToDb(SessionContextSingleton.getInstance()
+							.getCurrentUser().collection(),
+							SessionContextSingleton.getInstance().db());
 					setTableInput();
 					key.setText(""); //$NON-NLS-1$
 					val.setText(""); //$NON-NLS-1$

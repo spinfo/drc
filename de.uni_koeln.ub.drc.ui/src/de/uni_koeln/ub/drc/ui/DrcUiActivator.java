@@ -7,30 +7,8 @@
  *************************************************************************************************/
 package de.uni_koeln.ub.drc.ui;
 
-import java.net.URL;
-import java.util.Collections;
-
-import javax.security.auth.login.LoginException;
-
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Plugin;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.security.auth.ILoginContext;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.BundleContext;
-
-import com.quui.sinist.XmlDb;
-
-import de.uni_koeln.ub.drc.data.Index;
-import de.uni_koeln.ub.drc.data.User;
-import de.uni_koeln.ub.drc.ui.facades.SessionContextHelper;
-import de.uni_koeln.ub.drc.ui.views.SearchView;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -48,8 +26,6 @@ public class DrcUiActivator extends Plugin {
 	public static final String PLUGIN_ID = "de.uni_koeln.ub.drc.ui"; //$NON-NLS-1$
 	// The shared instance
 	private static DrcUiActivator plugin;
-	private XmlDb db;
-	private SearchView searchView;
 	private BundleContext context;
 
 	/**
@@ -91,111 +67,10 @@ public class DrcUiActivator extends Plugin {
 	}
 
 	/**
-	 * @return The data DB we are using
-	 */
-	public XmlDb db() {
-		if (db == null) {
-			db = Index.LocalDb().isAvailable() ? Index.LocalDb()
-					: currentUser().db();
-			if (!db.isAvailable()) {
-				throw new IllegalStateException(
-						"Could not connect to DB: " + db); //$NON-NLS-1$
-			}
-			getLog().log(new Status(IStatus.INFO, PLUGIN_ID, "Using DB: " + db)); //$NON-NLS-1$
-		}
-		return db;
-	}
-
-	/**
-	 * @return The users DB we are using
-	 */
-	public XmlDb userDb() {
-		return Index.LocalDb().isAvailable() ? Index.LocalDb() : new XmlDb(
-				"bob.spinfo.uni-koeln.de", 8080, "drc", "crd"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	}
-
-	/**
-	 * @return The user that is currently logged in
-	 */
-	public User currentUser() {
-		User user = null;
-		try {
-			ILoginContext context = getLoginContext();
-			user = (User) context.getSubject().getPrivateCredentials()
-					.iterator().next();
-		} catch (LoginException e) {
-			e.printStackTrace();
-		}
-		return user;
-	}
-
-	/**
-	 * @return The context for the logged in user.
-	 */
-	public ILoginContext getLoginContext() {
-		return SessionContextHelper.getContext().getLoginContext();
-	}
-
-	/**
-	 * @param location
-	 *            The bundle path of the image to load
-	 * @return The loaded image
-	 */
-	public Image loadImage(String location) {
-		IPath path = new Path(location);
-		URL url = FileLocator.find(this.getBundle(), path,
-				Collections.EMPTY_MAP);
-		ImageDescriptor desc = ImageDescriptor.createFromURL(url);
-		return desc.createImage();
-	}
-
-	/**
-	 * @param loginContext
-	 *            The ILoginContext
-	 */
-	public void setLoginContext(ILoginContext loginContext) {
-		SessionContextHelper.getContext().setLoginContext(loginContext);
-		this.searchView.setInput();
-		this.searchView.select();
-	}
-
-	/**
-	 * @param searchView
-	 *            The SearchView
-	 */
-	public void register(SearchView searchView) {
-		this.searchView = searchView;
-	}
-
-	/**
 	 * @return The BundleContext
 	 */
 	public BundleContext getBundleContext() {
 		return context;
 	}
 
-	/**
-	 * @param clazz
-	 *            The class literal of the view to find (needs an ID field)
-	 * @return The view corresponding to the given class literal, or null
-	 */
-	public static <T extends IViewPart> T find(Class<T> clazz) {
-		try {
-			String id = (String) clazz.getField("ID").get(null); //$NON-NLS-1$
-			@SuppressWarnings("unchecked")
-			// safe because class is passed
-			T view = (T) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-					.getActivePage().findView(id);
-			return view;
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 }

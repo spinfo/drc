@@ -169,7 +169,7 @@ object Index {
 
   //def collection(s:String) = "drc/" + s
   val DefaultCollection = "drc"
-  val LocalDb = XmlDb("localhost", 7070, "guest", "guest")
+  val LocalDb = XmlDb("localhost", 7777, "guest", "guest")
 
   lazy val lexicon: Set[String] =
     (Set() ++ scala.io.Source.fromInputStream(

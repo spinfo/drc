@@ -77,9 +77,11 @@ import de.uni_koeln.ub.drc.data.Page;
 import de.uni_koeln.ub.drc.data.SearchOption;
 import de.uni_koeln.ub.drc.data.Status;
 import de.uni_koeln.ub.drc.data.Tag;
+import de.uni_koeln.ub.drc.data.User;
 import de.uni_koeln.ub.drc.data.Word;
-import de.uni_koeln.ub.drc.ui.DrcUiActivator;
 import de.uni_koeln.ub.drc.ui.Messages;
+import de.uni_koeln.ub.drc.ui.facades.SessionContextSingleton;
+import de.uni_koeln.ub.drc.ui.util.ViewPartFinder;
 import de.uni_koeln.ub.drc.util.Chapter;
 import de.uni_koeln.ub.drc.util.MetsTransformer;
 
@@ -110,6 +112,8 @@ public final class SearchView extends ViewPart {
 	private List<Page> toExport;
 	private String selected;
 
+	// private User currentUser;
+
 	/**
 	 * @param parent
 	 *            The parent composite for this part
@@ -125,6 +129,8 @@ public final class SearchView extends ViewPart {
 		initTableViewer(parent);
 		addPageInfoBar(parent);
 		GridLayoutFactory.fillDefaults().generateLayout(parent);
+		setInput();
+		select();
 	}
 
 	@Override
@@ -138,12 +144,43 @@ public final class SearchView extends ViewPart {
 		return toExport;
 	}
 
+	User getUser() {
+		// final Display display = Display.getCurrent();
+		// final Runnable runnable = new Runnable() {
+		// @Override
+		// public void run() {
+		// UICallBack.runNonUIThreadWithFakeContext(display,
+		// new Runnable() {
+		// @Override
+		// public void run() {
+		// currentUser = SessionContextSingleton
+		// .getInstance().getCurrentUser();
+		// }
+		// });
+		// }
+		// };
+		// new Thread(runnable).start();
+		// ILoginContext attribute = (ILoginContext) RWT.getSessionStore()
+		//				.getAttribute("loginContext"); //$NON-NLS-1$
+		// User user = null;
+		// try {
+		// System.out.println(SessionContextSingleton.getInstance()
+		// .fetchSingletonInfo());
+		// user = (User) attribute.getSubject().getPrivateCredentials()
+		// .iterator().next();
+		// } catch (LoginException e) {
+		// e.printStackTrace();
+		// }
+		return SessionContextSingleton.getInstance().getCurrentUser();
+		// return currentUser;
+	}
+
 	/**
 	 * Select the last word edited by this user.
 	 */
 	public void select() {
-		String latestPage = DrcUiActivator.getDefault().currentUser()
-				.latestPage();
+
+		String latestPage = getUser().latestPage();
 		if (latestPage.trim().isEmpty()) {
 			return;
 		}
@@ -165,6 +202,7 @@ public final class SearchView extends ViewPart {
 		if (viewer.getSelection().isEmpty()) {
 			viewer.setSelection(new StructuredSelection(allPages.get(0)));
 		}
+
 	}
 
 	/**
@@ -243,10 +281,12 @@ public final class SearchView extends ViewPart {
 		Composite bottomComposite = new Composite(parent, SWT.NONE);
 		bottomComposite.setLayout(new GridLayout(9, false));
 		Button prev = new Button(bottomComposite, SWT.PUSH | SWT.FLAT);
-		prev.setImage(DrcUiActivator.getDefault().loadImage("icons/prev.gif")); //$NON-NLS-1$
+		prev.setImage(SessionContextSingleton.getInstance().loadImage(
+				"icons/prev.gif")); //$NON-NLS-1$
 		prev.addSelectionListener(new NavigationListener(Navigate.PREV));
 		Button next = new Button(bottomComposite, SWT.PUSH | SWT.FLAT);
-		next.setImage(DrcUiActivator.getDefault().loadImage("icons/next.gif")); //$NON-NLS-1$
+		next.setImage(SessionContextSingleton.getInstance().loadImage(
+				"icons/next.gif")); //$NON-NLS-1$
 		next.addSelectionListener(new NavigationListener(Navigate.NEXT));
 		currentPageLabel = new Label(bottomComposite, SWT.NONE);
 		Label label = new Label(bottomComposite, SWT.NONE);
@@ -266,13 +306,12 @@ public final class SearchView extends ViewPart {
 		close.addListener(SWT.MouseUp, new Listener() {
 			@Override
 			public void handleEvent(org.eclipse.swt.widgets.Event event) {
-				Page page = page(allPages.get(index));
+				final Page page = page(allPages.get(index));
 				page.status().$plus$eq(
-						new Status(DrcUiActivator.getDefault().currentUser()
-								.id(), System.currentTimeMillis(), close
-								.getSelection()));
-				page.saveToDb(DrcUiActivator.getDefault().currentUser()
-						.collection(), DrcUiActivator.getDefault().db());
+						new Status(getUser().id(), System.currentTimeMillis(),
+								close.getSelection()));
+				page.saveToDb(getUser().collection(), SessionContextSingleton
+						.getInstance().db());
 				viewer.setLabelProvider(new SearchViewLabelProvider());
 				reload(close.getParent(), page);
 			}
@@ -285,7 +324,7 @@ public final class SearchView extends ViewPart {
 		tagField = new Text(bottomComposite, SWT.BORDER);
 		Button addComment = new Button(bottomComposite, SWT.PUSH | SWT.FLAT);
 		addComment.setToolTipText(Messages.get().AddNewTagToCurrentPage);
-		addComment.setImage(DrcUiActivator.getDefault().loadImage(
+		addComment.setImage(SessionContextSingleton.getInstance().loadImage(
 				"icons/add.gif")); //$NON-NLS-1$
 		SelectionListener listener = new SelectionListener() {
 			@Override
@@ -301,17 +340,15 @@ public final class SearchView extends ViewPart {
 			}
 
 			private void addTag(final Text text) {
-				String input = text.getText();
+				final String input = text.getText();
 				if (input != null && input.trim().length() != 0) {
 					Page page = page(allPages.get(index));
-					page.tags().$plus$eq(
-							new Tag(input, DrcUiActivator.getDefault()
-									.currentUser().id()));
-					page.saveToDb(DrcUiActivator.getDefault().currentUser()
-							.collection(), DrcUiActivator.getDefault().db());
+					page.tags().$plus$eq(new Tag(input, getUser().id()));
+					page.saveToDb(getUser().collection(),
+							SessionContextSingleton.getInstance().db());
 					setCurrentPageLabel(page);
 					viewer.setLabelProvider(new SearchViewLabelProvider());
-					text.setText(""); //$NON-NLS-1$
+					text.setText(""); //$NON-NLS-1$	
 				}
 			}
 		};
@@ -329,14 +366,13 @@ public final class SearchView extends ViewPart {
 				selected = selected(volumes);
 			}
 		});
+
 		return Page
 				.fromXml(
-						DrcUiActivator
-								.getDefault()
+						SessionContextSingleton
+								.getInstance()
 								.db()
-								.getXml(DrcUiActivator.getDefault()
-										.currentUser().collection()
-										+ "/" + selected, JavaConversions.asScalaBuffer(Arrays.asList(string))).get() //$NON-NLS-1$
+								.getXml(getUser().collection() + "/" + selected, JavaConversions.asScalaBuffer(Arrays.asList(string))).get() //$NON-NLS-1$
 								.head(), ""); //$NON-NLS-1$
 	}
 
@@ -412,7 +448,7 @@ public final class SearchView extends ViewPart {
 		}
 		viewer.refresh(chapter);
 		viewer.setSelection(new StructuredSelection(page));
-		EditView view = DrcUiActivator.find(EditView.class);
+		EditView view = ViewPartFinder.find(EditView.class);
 		view.focusLatestWord();
 	}
 
@@ -483,8 +519,11 @@ public final class SearchView extends ViewPart {
 		initTable();
 		viewer.setContentProvider(new SearchViewContentProvider());
 		viewer.setLabelProvider(new SearchViewLabelProvider());
-		DrcUiActivator.getDefault().register(this);
 		getSite().setSelectionProvider(viewer);
+		// FIXME Select last edit page
+		// DrcUiActivator.getDefault().register(this);
+		// setInput();
+		// select();
 	}
 
 	private void busyCursorWhile(final Display display, final Runnable runnable) {
@@ -568,12 +607,12 @@ public final class SearchView extends ViewPart {
 					modelSelected = selected(volumes);
 				}
 			});
-			List<String> ids = JavaConversions.asJavaList(DrcUiActivator
-					.getDefault()
-					.db()
-					.getIds(DrcUiActivator.getDefault().currentUser()
-							.collection()
-							+ "/" + modelSelected).get()); //$NON-NLS-1$
+			List<String> ids = JavaConversions
+					.asJavaList(SessionContextSingleton
+							.getInstance()
+							.db()
+							.getIds(getUser().collection()
+									+ "/" + modelSelected).get()); //$NON-NLS-1$
 			// we only load the XML files
 			List<String> pages = new ArrayList<String>();
 			for (String id : ids) {
@@ -582,8 +621,8 @@ public final class SearchView extends ViewPart {
 				}
 			}
 			modelIndex = new Index(JavaConversions.asScalaBuffer(pages)
-					.toList(), DrcUiActivator.getDefault().db(), modelSelected,
-					Index.DefaultCollection());
+					.toList(), SessionContextSingleton.getInstance().db(),
+					modelSelected, Index.DefaultCollection());
 		}
 
 		Object[] search;
@@ -671,7 +710,7 @@ public final class SearchView extends ViewPart {
 
 	private void load() {
 		String selectedVolume = selected(volumes);
-		XmlDb db = DrcUiActivator.getDefault().db();
+		XmlDb db = SessionContextSingleton.getInstance().db();
 		if (content == null || !selectedVolume.equals(last)) {
 			loadData();
 			allPages = new ArrayList<String>(
@@ -786,7 +825,7 @@ public final class SearchView extends ViewPart {
 	private InputStream getInputStream(String selectedVolume) {
 		InputStream openStream = null;
 		try {
-			XmlDb db = DrcUiActivator.getDefault().db();
+			XmlDb db = SessionContextSingleton.getInstance().db();
 			URL url = new URL(db.restRoot() + "drc/drc-meta-comp/" //$NON-NLS-1$
 					+ selectedVolume + ".xml");//$NON-NLS-1$
 			openStream = url.openStream();
@@ -944,8 +983,8 @@ public final class SearchView extends ViewPart {
 		public Image getColumnImage(final Object element, final int columnIndex) {
 			if (columnIndex == 0 && element instanceof Page) {
 				Page page = (Page) element;
-				return DrcUiActivator
-						.getDefault()
+				return SessionContextSingleton
+						.getInstance()
 						.loadImage(
 								page.done() ? "icons/complete_status.gif" //$NON-NLS-1$
 										: page.edits() == 0 ? "icons/page.gif" : "icons/edited.gif"); //$NON-NLS-1$ //$NON-NLS-2$

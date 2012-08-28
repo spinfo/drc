@@ -20,10 +20,12 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import com.quui.sinist.XmlDb;
+
 import de.uni_koeln.ub.drc.data.Index;
 import de.uni_koeln.ub.drc.data.User;
-import de.uni_koeln.ub.drc.ui.DrcUiActivator;
 import de.uni_koeln.ub.drc.ui.Messages;
+import de.uni_koeln.ub.drc.ui.facades.SessionContextSingleton;
 
 /**
  * Simple login module implementation.
@@ -85,8 +87,11 @@ public final class SimpleLoginModule implements LoginModule {
 	private boolean authenticate(final String name, final String pass) {
 		User candidate = null;
 		try {
-			candidate = User.withId(Index.DefaultCollection(), DrcUiActivator
-					.getDefault().userDb(), name);
+			String defaultCollection = Index.DefaultCollection();
+			SessionContextSingleton instance = SessionContextSingleton
+					.getInstance();
+			XmlDb userDb = instance.getUserDb();
+			candidate = User.withId(defaultCollection, userDb, name);
 		} catch (Throwable x) {
 			x.printStackTrace();
 		}
@@ -94,7 +99,6 @@ public final class SimpleLoginModule implements LoginModule {
 			currentUser = candidate;
 			loggedIn = true;
 			System.out.println("Logged in: " + currentUser); //$NON-NLS-1$
-
 		}
 		return loggedIn;
 	}

@@ -8,3 +8,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: javax.servlet,
  javax.servlet.http
 Require-Bundle: org.eclipse.rap.ui
+Bundle-ClassPath: lib/drc-scala.jar,
+ .

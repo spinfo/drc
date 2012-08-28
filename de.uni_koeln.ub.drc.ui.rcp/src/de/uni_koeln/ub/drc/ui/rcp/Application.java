@@ -9,7 +9,10 @@ package de.uni_koeln.ub.drc.ui.rcp;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Set;
+
+import javax.security.auth.login.LoginException;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -27,12 +30,17 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.security.auth.ILoginContext;
+import org.eclipse.equinox.security.auth.LoginContextFactory;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.BundleContext;
 
 import de.uni_koeln.ub.drc.ui.DrcUiActivator;
+import de.uni_koeln.ub.drc.ui.Messages;
+import de.uni_koeln.ub.drc.ui.facades.SessionContextSingleton;
 
 /**
  * This class controls all aspects of the application's execution
@@ -40,6 +48,9 @@ import de.uni_koeln.ub.drc.ui.DrcUiActivator;
  * @author Mihail Atanassov (matana), Fabian Steeg (fsteeg)
  */
 public class Application implements IApplication {
+
+	private static final String JAAS_CONFIG_FILE = "jaas_config"; //$NON-NLS-1$
+	private ILoginContext loginContext;
 
 	/*
 	 * (non-Javadoc)
@@ -51,6 +62,9 @@ public class Application implements IApplication {
 	public Object start(IApplicationContext context) throws Exception {
 		update(DrcUiActivator.getDefault().getBundleContext());
 		Display display = PlatformUI.createDisplay();
+		BundleContext bundleContext = DrcUiActivator.getDefault().getBundle()
+				.getBundleContext();
+		login(bundleContext);
 		try {
 			int returnCode = PlatformUI.createAndRunWorkbench(display,
 					new ApplicationWorkbenchAdvisor());
@@ -61,6 +75,32 @@ public class Application implements IApplication {
 			display.dispose();
 		}
 
+	}
+
+	private void login(BundleContext bundleContext) {
+		String configName = "SIMPLE"; //$NON-NLS-1$
+		System.out.println("bundleContext : " //$NON-NLS-1$
+				+ bundleContext.getClass().getName().toLowerCase());
+		URL configUrl = bundleContext.getBundle().getEntry(JAAS_CONFIG_FILE);
+		loginContext = LoginContextFactory.createContext(configName, configUrl);
+		try {
+			loginContext.login();
+			SessionContextSingleton.getInstance().setLoginContext(loginContext);
+		} catch (LoginException e) {
+			e.printStackTrace();
+			boolean retry = MessageDialog.openQuestion(null,
+					Messages.get().Error, Messages.get().LoginFailed);
+			if (!retry) {
+				try {
+					DrcUiActivator.getDefault().stop(bundleContext);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				System.exit(0);
+			} else {
+				login(bundleContext);
+			}
+		}
 	}
 
 	/*

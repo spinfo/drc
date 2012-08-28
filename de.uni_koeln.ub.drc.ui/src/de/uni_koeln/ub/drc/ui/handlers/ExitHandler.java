@@ -47,6 +47,7 @@ public class ExitHandler extends AbstractHandler {
 				ev.doSave(new NullProgressMonitor());
 			}
 		}
+		// SessionContextSingleton.getInstance().exit();
 		return PlatformUI.getWorkbench().close();
 	}
 

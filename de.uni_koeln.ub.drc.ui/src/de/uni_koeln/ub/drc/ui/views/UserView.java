@@ -23,7 +23,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
-import de.uni_koeln.ub.drc.ui.DrcUiActivator;
+import de.uni_koeln.ub.drc.ui.facades.SessionContextSingleton;
 
 /**
  * View to show user details (currently for debugging purpose only).
@@ -49,7 +49,7 @@ public final class UserView extends ViewPart {
 		subjectViewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL
 				| SWT.V_SCROLL);
 		try {
-			subject = DrcUiActivator.getDefault().getLoginContext()
+			subject = SessionContextSingleton.getInstance().getLoginContext()
 					.getSubject();
 		} catch (LoginException e) {
 			e.printStackTrace();
