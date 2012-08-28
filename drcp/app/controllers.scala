@@ -28,7 +28,7 @@ object Application extends Controller with Secure {
   
   import views.Application._
 
-  val server = "bob.spinfo.uni-koeln.de"
+  val server = "hydra1.spinfo.uni-koeln.de"
   val port = 8080
   val db = XmlDb(server, port, "drc", "crd")
   val col = "drc"
