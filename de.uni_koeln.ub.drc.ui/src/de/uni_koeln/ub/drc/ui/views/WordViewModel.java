@@ -20,8 +20,8 @@ import de.uni_koeln.ub.drc.data.Index;
 import de.uni_koeln.ub.drc.data.Modification;
 import de.uni_koeln.ub.drc.data.User;
 import de.uni_koeln.ub.drc.data.Word;
-import de.uni_koeln.ub.drc.ui.DrcUiActivator;
 import de.uni_koeln.ub.drc.ui.Messages;
+import de.uni_koeln.ub.drc.ui.facades.SessionContextSingleton;
 
 /**
  * Model, content and label providers for the {@link WordView}.
@@ -83,8 +83,8 @@ final class WordViewModel {
 
 		static String userDetails(String id) {
 			if (id.equals("OCR"))return "--"; //$NON-NLS-1$ //$NON-NLS-2$
-			User user = User.withId(Index.DefaultCollection(), DrcUiActivator
-					.getDefault().userDb(), id);
+			User user = User.withId(Index.DefaultCollection(),
+					SessionContextSingleton.getInstance().getUserDb(), id);
 			return String
 					.format("%s " + Messages.get().From + " %s (%s, %s)", user.name(), user.region(), user.id(), //$NON-NLS-1$ //$NON-NLS-2$
 							user.reputation());

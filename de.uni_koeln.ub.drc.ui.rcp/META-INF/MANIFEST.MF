@@ -13,3 +13,6 @@ Require-Bundle: org.eclipse.e4.ui.css.swt.theme;bundle-version="0.9.1",
  com.windowtester.runner;bundle-version="6.0.0",
  com.windowtester.runtime;bundle-version="6.0.0",
  com.windowtester.swt.runtime;bundle-version="6.0.0"
+Bundle-ClassPath: lib/drc-scala.jar,
+ lib/sinist_2.8.1-0.2.0.jar,
+ .

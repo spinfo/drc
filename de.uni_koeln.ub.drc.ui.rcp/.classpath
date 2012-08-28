@@ -4,5 +4,7 @@
 	<classpathentry exported="true" kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src-tests"/>
+	<classpathentry exported="true" kind="lib" path="lib/drc-scala.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/sinist_2.8.1-0.2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

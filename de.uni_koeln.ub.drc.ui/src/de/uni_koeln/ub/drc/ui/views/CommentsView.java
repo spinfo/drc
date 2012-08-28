@@ -42,8 +42,9 @@ import org.eclipse.ui.part.ViewPart;
 import scala.collection.JavaConversions;
 import de.uni_koeln.ub.drc.data.Comment;
 import de.uni_koeln.ub.drc.data.Page;
-import de.uni_koeln.ub.drc.ui.DrcUiActivator;
 import de.uni_koeln.ub.drc.ui.Messages;
+import de.uni_koeln.ub.drc.ui.facades.SessionContextSingleton;
+import de.uni_koeln.ub.drc.ui.util.ViewPartFinder;
 import de.uni_koeln.ub.drc.ui.views.WordViewModel.WordViewLabelProvider;
 
 /**
@@ -113,7 +114,8 @@ public final class CommentsView extends ViewPart {
 		commentField = new Text(comp, SWT.BORDER);
 		commentField.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		Button add = new Button(comp, SWT.PUSH | SWT.FLAT);
-		add.setImage(DrcUiActivator.getDefault().loadImage("icons/add.gif")); //$NON-NLS-1$
+		add.setImage(SessionContextSingleton.getInstance().loadImage(
+				"icons/add.gif")); //$NON-NLS-1$
 		add.setToolTipText(Messages.get().AddNewComment);
 		SelectionListener listener = new SelectionListener() {
 			@Override
@@ -132,14 +134,15 @@ public final class CommentsView extends ViewPart {
 				String text = commentField.getText().trim();
 				if (text.length() > 0) {
 					page.comments().$plus$eq(
-							new Comment(DrcUiActivator.getDefault()
-									.currentUser().id(), text, System
+							new Comment(SessionContextSingleton.getInstance()
+									.getCurrentUser().id(), text, System
 									.currentTimeMillis()));
 					setInput();
-					page.saveToDb(DrcUiActivator.getDefault().currentUser()
-							.collection(), DrcUiActivator.getDefault().db());
+					page.saveToDb(SessionContextSingleton.getInstance()
+							.getCurrentUser().collection(),
+							SessionContextSingleton.getInstance().db());
 					commentField.setText(""); //$NON-NLS-1$
-					SearchView sv = DrcUiActivator.find(SearchView.class);
+					SearchView sv = ViewPartFinder.find(SearchView.class);
 					sv.updateTreeViewer();
 				}
 			}
@@ -238,7 +241,8 @@ public final class CommentsView extends ViewPart {
 		@Override
 		public Image getColumnImage(final Object element, final int columnIndex) {
 			if (columnIndex == 0) {
-				return DrcUiActivator.getDefault().loadImage("icons/write.gif"); //$NON-NLS-1$
+				return SessionContextSingleton.getInstance().loadImage(
+						"icons/write.gif"); //$NON-NLS-1$
 			}
 			return null;
 		}

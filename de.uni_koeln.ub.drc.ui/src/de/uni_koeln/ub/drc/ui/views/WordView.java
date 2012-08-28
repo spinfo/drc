@@ -37,8 +37,8 @@ import de.uni_koeln.ub.drc.data.Modification;
 import de.uni_koeln.ub.drc.data.Page;
 import de.uni_koeln.ub.drc.data.User;
 import de.uni_koeln.ub.drc.data.Word;
-import de.uni_koeln.ub.drc.ui.DrcUiActivator;
 import de.uni_koeln.ub.drc.ui.Messages;
+import de.uni_koeln.ub.drc.ui.facades.SessionContextSingleton;
 import de.uni_koeln.ub.drc.ui.views.WordViewModel.WordViewContentProvider;
 import de.uni_koeln.ub.drc.ui.views.WordViewModel.WordViewLabelProvider;
 
@@ -175,8 +175,8 @@ public final class WordView extends ViewPart {
 				+ ""); //$NON-NLS-1$
 		if (!word.history().top().equals(modification)) { // no revert for most
 			// recent modification
-			Button button = createButton(item, DrcUiActivator.getDefault()
-					.loadImage("icons/revert.gif"), //$NON-NLS-1$
+			Button button = createButton(item, SessionContextSingleton
+					.getInstance().loadImage("icons/revert.gif"), //$NON-NLS-1$
 					col);
 			button.setEnabled(!word.isLocked());
 			button.addSelectionListener(new SelectionListener() {
@@ -187,8 +187,8 @@ public final class WordView extends ViewPart {
 					 * most recent modification is voted down, and the
 					 * modification that we are reverting to is voted up:
 					 */
-					User currentUser = DrcUiActivator.getDefault()
-							.currentUser();
+					User currentUser = SessionContextSingleton.getInstance()
+							.getCurrentUser();
 					vote(word.history().top(), currentUser, Vote.DOWN);
 					vote(modification, currentUser, Vote.UP);
 					MessageDialog.openInformation(item.getParent().getShell(),
@@ -228,17 +228,18 @@ public final class WordView extends ViewPart {
 
 	private Button addVoteButton(final TableItem item, final int index,
 			final Vote vote, int col) {
-		Button button = createButton(item, vote == Vote.UP ? DrcUiActivator
-				.getDefault().loadImage("icons/up.gif") : DrcUiActivator //$NON-NLS-1$
-				.getDefault().loadImage("icons/down.gif"), col); //$NON-NLS-1$
+		Button button = createButton(
+				item,
+				vote == Vote.UP ? SessionContextSingleton.getInstance()
+						.loadImage("icons/up.gif") : SessionContextSingleton.getInstance().loadImage("icons/down.gif"), col); //$NON-NLS-1$ //$NON-NLS-2$ 
 		button.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
 				Modification modification = (Modification) viewer.getData(index
 						+ ""); //$NON-NLS-1$
 				if (currentUserMayVote(modification)) {
-					vote(modification, DrcUiActivator.getDefault()
-							.currentUser(), vote);
+					vote(modification, SessionContextSingleton.getInstance()
+							.getCurrentUser(), vote);
 					MessageDialog.openInformation(item.getParent().getShell(),
 							Messages.get().Vote + vote, Messages.get().Voted
 									+ modification + ": " + vote); //$NON-NLS-1$
@@ -255,8 +256,8 @@ public final class WordView extends ViewPart {
 
 	private void vote(Modification modification, User voter, Vote vote) {
 		if (!modification.voters().contains(voter.id())) {
-			XmlDb db = DrcUiActivator.getDefault().db();
-			XmlDb userDb = DrcUiActivator.getDefault().userDb();
+			XmlDb db = SessionContextSingleton.getInstance().db();
+			XmlDb userDb = SessionContextSingleton.getInstance().getUserDb();
 			User author = User.withId(Index.DefaultCollection(), userDb,
 					modification.author());
 			vote.update(modification, author, voter);
@@ -268,7 +269,7 @@ public final class WordView extends ViewPart {
 	}
 
 	private boolean currentUserMayVote(Modification modification) {
-		User user = DrcUiActivator.getDefault().currentUser();
+		User user = SessionContextSingleton.getInstance().getCurrentUser();
 		if (modification.author().equals(user.id())) {
 			MessageDialog.openWarning(viewer.getControl().getShell(),
 					Messages.get().CannotVoteForOwnShort,

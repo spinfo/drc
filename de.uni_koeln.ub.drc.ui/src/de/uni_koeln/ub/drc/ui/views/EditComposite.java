@@ -31,10 +31,11 @@ import scala.collection.JavaConversions;
 import de.uni_koeln.ub.drc.data.Page;
 import de.uni_koeln.ub.drc.data.User;
 import de.uni_koeln.ub.drc.data.Word;
-import de.uni_koeln.ub.drc.ui.DrcUiActivator;
 import de.uni_koeln.ub.drc.ui.Messages;
 import de.uni_koeln.ub.drc.ui.facades.CSSSWTConstantsHelper;
+import de.uni_koeln.ub.drc.ui.facades.SessionContextSingleton;
 import de.uni_koeln.ub.drc.ui.facades.TextHelper;
+import de.uni_koeln.ub.drc.ui.util.ViewPartFinder;
 
 /**
  * Composite holding the edit area. Used by the {@link EditView}.
@@ -184,7 +185,8 @@ public class EditComposite extends Composite {
 		text.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(final ModifyEvent e) {
-				User user = DrcUiActivator.getDefault().currentUser();
+				User user = SessionContextSingleton.getInstance()
+						.getCurrentUser();
 				user.latestPage_$eq(page.id());
 				user.latestWord_$eq(words.indexOf(text));
 				/*
@@ -251,10 +253,10 @@ public class EditComposite extends Composite {
 									+ " '%s' " + Messages.get().IsLocked, text.getText())); //$NON-NLS-1$
 				}
 				text.setEditable(!word.isLocked() && !page.done());
-				DrcUiActivator.find(CheckView.class).setSelection(text);
-				DrcUiActivator.find(SpecialCharacterView.class).setText(text);
-				DrcUiActivator.find(WordView.class).selectedWord(word, text);
-				DrcUiActivator.find(TagView.class).setWord(word);
+				ViewPartFinder.find(CheckView.class).setSelection(text);
+				ViewPartFinder.find(SpecialCharacterView.class).setText(text);
+				ViewPartFinder.find(WordView.class).selectedWord(word, text);
+				ViewPartFinder.find(TagView.class).setWord(word);
 				text.setToolTipText(word.formattedHistory());
 				if (prev != null
 						&& !prev.isDisposed()

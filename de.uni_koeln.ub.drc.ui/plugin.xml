@@ -114,6 +114,12 @@
             id="de.uni_koeln.ub.drc.ui.handlers.exithandler"
             name="%Exit">
       </command>
+      <command
+            defaultHandler="org.eclipse.ui.handlers.ShowPerspectiveHandler"
+            helpContextId="de.uni_koeln.ub.drc.ui.context"
+            id="de.uni_koeln.ub.drc.ui.perspectives"
+            name="Show perspective">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -141,9 +147,10 @@
             </command>
          </menu>
          <menu
+               commandId="de.uni_koeln.ub.drc.ui.perspectives"
                label="Layout">
             <command
-                  commandId="org.eclipse.ui.perspectives.showPerspective"
+                  commandId="de.uni_koeln.ub.drc.ui.perspectives"
                   label="%SelectLayout"
                   style="push">
             </command>
@@ -312,7 +319,7 @@
          </view>
       </perspectiveExtension>
    </extension>
-   <extension
+   <!--<extension
          point="org.eclipse.ui.bindings">
       <scheme
             id="de.uni_koeln.ub.drc.ui.scheme"
@@ -331,14 +338,15 @@
             schemeId="de.uni_koeln.ub.drc.ui.scheme"
             sequence="M1+Q">
       </key>
-   </extension>
+   </extension>-->
    <extension
+         id="de.uni_koeln.ub.drc.ui.context"
          point="org.eclipse.ui.contexts">
-      <context
+      <!--<context
             id="de.uni_koeln.ub.drc.ui.editcontext"
             name="Edit context"
             parentId="org.eclipse.ui.contexts.dialogAndWindow">
-      </context>
+      </context>-->
       <context
             id="de.uni_koeln.ub.drc.ui.perspectivecontext"
             name="Perspective default">

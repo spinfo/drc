@@ -11,10 +11,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWindowListener;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
+
+import de.uni_koeln.ub.drc.ui.facades.SessionContextSingleton;
 
 /**
  * Configures the initial size and appearance of a workbench window.
@@ -49,5 +53,27 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setInitialSize(new Point(rect.width, rect.height));
 		configurer.setShellStyle(SWT.TITLE | SWT.RESIZE | SWT.CLOSE | SWT.MAX
 				| SWT.MIN);
+		configurer.getWindow().getWorkbench()
+				.addWindowListener(new IWindowListener() {
+
+					@Override
+					public void windowOpened(IWorkbenchWindow window) {
+					}
+
+					@Override
+					public void windowDeactivated(IWorkbenchWindow window) {
+					}
+
+					@Override
+					public void windowClosed(IWorkbenchWindow window) {
+						System.out
+								.println("Window closed: " + window.toString()); //$NON-NLS-1$
+						SessionContextSingleton.getInstance().exit();
+					}
+
+					@Override
+					public void windowActivated(IWorkbenchWindow window) {
+					}
+				});
 	}
 }
