@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.6"?>
 
-<target name="DRC RCP" sequenceNumber="57">
+<target name="DRC RCP" sequenceNumber="58">
 <locations>
 <location includeAllPlatforms="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.e4.runtime.feature.feature.group" version="0.9.1.v20100917-1000-7R77F9wF9JgLWVN4kcCmbZE"/>
@@ -20,8 +20,8 @@
 <repository location="http://download.eclipse.org/eclipse/updates/3.7"/>
 </location>
 <location includeAllPlatforms="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="com.windowtester.launcher.feature.group" version="6.0.0.r37x201108222304"/>
-<unit id="com.windowtester.runtime.feature.group" version="6.0.0.r37x201108222321"/>
+<unit id="com.windowtester.launcher.feature.group" version="6.0.0.r37x201207141336"/>
+<unit id="com.windowtester.runtime.feature.group" version="6.0.0.r37x201207141338"/>
 <repository location="http://dl.google.com/eclipse/inst/windowtester/beta/3.7"/>
 </location>
 </locations>

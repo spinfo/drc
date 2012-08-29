@@ -73,7 +73,7 @@ public class SessionContextSingletonImpl implements
 	public XmlDb getUserDb() {
 		if (Index.LocalDb().isAvailable())
 			return Index.LocalDb();
-		return new XmlDb("http://bob.spinfo.uni-koeln.de", 8080, "drc", "crd"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return new XmlDb("bob.spinfo.uni-koeln.de", 8080, "drc", "crd"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	@Override
