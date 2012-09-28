@@ -218,8 +218,9 @@ public final class EditView extends ViewPart implements ISaveablePart {
 								+ PlainTextCopy.suffix();
 						String vol = page.id().split("-")[0]; //$NON-NLS-1$
 						XmlDb db = SessionContextSingleton.getInstance().db();
-						System.out.printf("Copy text to '%s', '%s' in %s\n", //$NON-NLS-1$
-								col, vol, db);
+						System.out.printf(
+								"Copy page '%s' to '%s', '%s' in %s\n", //$NON-NLS-1$
+								page.id(), col, vol, db);
 						PlainTextCopy.saveToDb(page, col, vol, db);
 					}
 				}));
@@ -265,7 +266,7 @@ public final class EditView extends ViewPart implements ISaveablePart {
 	}
 
 	private void saveToXml(final Page page, User user) {
-		System.out.println("Saving page: " + page); //$NON-NLS-1$
+		System.out.println("Saving page: " + page.id().toString()); //$NON-NLS-1$
 		page.saveToDb(user.collection(), SessionContextSingleton.getInstance()
 				.db());
 	}
