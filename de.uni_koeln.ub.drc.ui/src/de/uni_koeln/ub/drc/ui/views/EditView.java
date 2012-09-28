@@ -20,6 +20,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISaveablePart;
@@ -183,10 +184,12 @@ public final class EditView extends ViewPart implements ISaveablePart {
 	 */
 	@Override
 	public void doSave(/* @Optional */final IProgressMonitor progressMonitor) {
-		final IProgressMonitor monitor = progressMonitor == null ? new NullProgressMonitor()
-				: progressMonitor;
+		// final IProgressMonitor monitor = progressMonitor == null ? new
+		// NullProgressMonitor()
+		// : progressMonitor;
 		final Page page = editComposite.getPage();
-		monitor.beginTask(Messages.get().SavingPage, page.words().size());
+		// editComposite.update(page);
+		// monitor.beginTask(Messages.get().SavingPage, page.words().size());
 		final List<Text> words = editComposite.getWords();
 		editComposite.getDisplay().syncExec(new Runnable() {
 			@Override
@@ -195,7 +198,7 @@ public final class EditView extends ViewPart implements ISaveablePart {
 					Text text = words.get(i);
 					resetWarningColor(text);
 					addToHistory(text);
-					monitor.worked(1);
+					// monitor.worked(1);
 				}
 				User user = SessionContextSingleton.getInstance()
 						.getCurrentUser();
@@ -208,7 +211,7 @@ public final class EditView extends ViewPart implements ISaveablePart {
 			}
 
 			private void plainTextCopy(final Page page) {
-				new Thread(new Runnable() {
+				Display.getCurrent().asyncExec((new Runnable() {
 					@Override
 					public void run() {
 						String col = Index.DefaultCollection()
@@ -219,7 +222,7 @@ public final class EditView extends ViewPart implements ISaveablePart {
 								col, vol, db);
 						PlainTextCopy.saveToDb(page, col, vol, db);
 					}
-				}).start();
+				}));
 			}
 
 			private void addToHistory(Text text) {
@@ -262,7 +265,7 @@ public final class EditView extends ViewPart implements ISaveablePart {
 	}
 
 	private void saveToXml(final Page page, User user) {
-		//System.out.println("Saving page: " + page); //$NON-NLS-1$
+		System.out.println("Saving page: " + page); //$NON-NLS-1$
 		page.saveToDb(user.collection(), SessionContextSingleton.getInstance()
 				.db());
 	}
