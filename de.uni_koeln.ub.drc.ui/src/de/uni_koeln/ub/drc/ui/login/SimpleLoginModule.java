@@ -9,6 +9,8 @@
 package de.uni_koeln.ub.drc.ui.login;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Map;
 
 import javax.security.auth.Subject;
@@ -98,7 +100,7 @@ public final class SimpleLoginModule implements LoginModule {
 		if (validLogin(candidate, pass)) {
 			currentUser = candidate;
 			loggedIn = true;
-			System.out.println("Logged in: " + currentUser); //$NON-NLS-1$
+			System.out.println("Logged in " + getDate() + " : " + currentUser); //$NON-NLS-1$
 		}
 		return loggedIn;
 	}
@@ -143,4 +145,11 @@ public final class SimpleLoginModule implements LoginModule {
 		loggedIn = false;
 		return true;
 	}
+
+	private String getDate() {
+		SimpleDateFormat dateformatter = new SimpleDateFormat(
+				"E yyyy.MM.dd 'at' hh:mm:ss a"); //$NON-NLS-1$
+		return dateformatter.format(Calendar.getInstance().getTime());
+	}
+
 }
