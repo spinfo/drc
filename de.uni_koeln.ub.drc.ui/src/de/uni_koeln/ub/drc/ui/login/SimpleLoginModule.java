@@ -98,9 +98,16 @@ public final class SimpleLoginModule implements LoginModule {
 			x.printStackTrace();
 		}
 		if (validLogin(candidate, pass)) {
+
+			System.out.println("Freier Speicher: "
+					+ (getTotalFreeMemory() / 1024) + " kb");
+
 			currentUser = candidate;
 			loggedIn = true;
-			System.out.println("Logged in " + getDate() + " : " + currentUser); //$NON-NLS-1$
+			System.out.println(getDate() + " Logged in: " + currentUser); //$NON-NLS-1$
+
+			System.out.println("Freier Speicher: "
+					+ (getTotalFreeMemory() / 1024) + " kb");
 		}
 		return loggedIn;
 	}
@@ -150,6 +157,14 @@ public final class SimpleLoginModule implements LoginModule {
 		SimpleDateFormat dateformatter = new SimpleDateFormat(
 				"E yyyy.MM.dd 'at' hh:mm:ss a"); //$NON-NLS-1$
 		return dateformatter.format(Calendar.getInstance().getTime());
+	}
+
+	private long getTotalFreeMemory() {
+		long maxMemory = Runtime.getRuntime().maxMemory();
+		long allocatedMemory = Runtime.getRuntime().totalMemory();
+		long freeMemory = Runtime.getRuntime().freeMemory();
+		long totalFreeMemory = (freeMemory + (maxMemory - allocatedMemory));
+		return totalFreeMemory;
 	}
 
 }

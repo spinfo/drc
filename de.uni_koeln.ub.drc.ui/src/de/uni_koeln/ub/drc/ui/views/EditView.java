@@ -269,7 +269,7 @@ public final class EditView extends ViewPart implements ISaveablePart {
 
 	private void saveToXml(final Page page, User user) {
 		System.out.println("Saving page: " + page.id().toString()); //$NON-NLS-1$
-		System.out.println(user.name()
+		System.out.println(user.id()
 				+ ": saving page: " + page.id().toString() + ", " + getDate()); //$NON-NLS-1$
 
 		System.out.println("Freier Speicher: " + (getTotalFreeMemory() / 1024)

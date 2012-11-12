@@ -83,8 +83,8 @@ public class SessionContextSingletonImpl implements
 	public XmlDb getUserDb() {
 		if (Index.LocalDb().isAvailable())
 			return Index.LocalDb();
-		//		return new XmlDb("hydra1.spinfo.uni-koeln.de", 8080, "guest", "guest"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		return new XmlDb("bob.spinfo.uni-koeln.de", 8080, "drc", "crd"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return new XmlDb("hydra1.spinfo.uni-koeln.de", 8080, "guest", "guest"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		//		return new XmlDb("bob.spinfo.uni-koeln.de", 8080, "drc", "crd"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	@Override
@@ -163,8 +163,16 @@ public class SessionContextSingletonImpl implements
 	private void logout() {
 		try {
 			System.out
-					.println("Logged out " + getDate() + " : " + getCurrentUser()); //$NON-NLS-1$ //$NON-NLS-2$
+					.println("Freier Speicher: " + (getTotalFreeMemory() / 1024) //$NON-NLS-1$
+							+ " kb"); //$NON-NLS-1$
+
+			System.out.println(getDate() + " Logged out: " + getCurrentUser()); //$NON-NLS-1$ //$NON-NLS-2$
 			loginContext.logout();
+
+			System.out
+					.println("Freier Speicher: " + (getTotalFreeMemory() / 1024) //$NON-NLS-1$
+							+ " kb"); //$NON-NLS-1$
+
 		} catch (LoginException e) {
 			e.printStackTrace();
 		}
@@ -186,4 +194,13 @@ public class SessionContextSingletonImpl implements
 				"E yyyy.MM.dd 'at' hh:mm:ss a"); //$NON-NLS-1$
 		return dateformatter.format(Calendar.getInstance().getTime());
 	}
+
+	private long getTotalFreeMemory() {
+		long maxMemory = Runtime.getRuntime().maxMemory();
+		long allocatedMemory = Runtime.getRuntime().totalMemory();
+		long freeMemory = Runtime.getRuntime().freeMemory();
+		long totalFreeMemory = (freeMemory + (maxMemory - allocatedMemory));
+		return totalFreeMemory;
+	}
+
 }
