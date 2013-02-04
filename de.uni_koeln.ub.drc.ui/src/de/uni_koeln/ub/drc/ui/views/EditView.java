@@ -7,6 +7,8 @@
  *************************************************************************************************/
 package de.uni_koeln.ub.drc.ui.views;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -219,8 +221,8 @@ public final class EditView extends ViewPart implements ISaveablePart {
 						String vol = page.id().split("-")[0]; //$NON-NLS-1$
 						XmlDb db = SessionContextSingleton.getInstance().db();
 						System.out.printf(
-								"Copy page '%s' to '%s', '%s' in %s\n", //$NON-NLS-1$
-								page.id(), col, vol, db);
+								"Copy page '%s' to '%s', '%s' in %s, %s\n", //$NON-NLS-1$
+								page.id(), col, vol, db, getDate());
 						PlainTextCopy.saveToDb(page, col, vol, db);
 					}
 				}));
@@ -266,9 +268,25 @@ public final class EditView extends ViewPart implements ISaveablePart {
 	}
 
 	private void saveToXml(final Page page, User user) {
-		System.out.println("Saving page: " + page.id().toString()); //$NON-NLS-1$
+		System.out.println(user.id()
+				+ ": saving page: " + page.id().toString() + ", " + getDate()); //$NON-NLS-1$
+
 		page.saveToDb(user.collection(), SessionContextSingleton.getInstance()
 				.db());
+	}
+
+	private String getDate() {
+		SimpleDateFormat dateformatter = new SimpleDateFormat(
+				"E yyyy.MM.dd 'at' hh:mm:ss a"); //$NON-NLS-1$
+		return dateformatter.format(Calendar.getInstance().getTime());
+	}
+
+	private long getTotalFreeMemory() {
+		long maxMemory = Runtime.getRuntime().maxMemory();
+		long allocatedMemory = Runtime.getRuntime().totalMemory();
+		long freeMemory = Runtime.getRuntime().freeMemory();
+		long totalFreeMemory = (freeMemory + (maxMemory - allocatedMemory));
+		return totalFreeMemory;
 	}
 
 }

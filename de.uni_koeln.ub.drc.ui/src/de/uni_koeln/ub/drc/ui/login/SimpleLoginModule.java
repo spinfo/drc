@@ -9,6 +9,8 @@
 package de.uni_koeln.ub.drc.ui.login;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Map;
 
 import javax.security.auth.Subject;
@@ -20,11 +22,15 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+
 import com.quui.sinist.XmlDb;
 
 import de.uni_koeln.ub.drc.data.Index;
 import de.uni_koeln.ub.drc.data.User;
 import de.uni_koeln.ub.drc.ui.Messages;
+import de.uni_koeln.ub.drc.ui.facades.IDialogConstantsHelper;
 import de.uni_koeln.ub.drc.ui.facades.SessionContextSingleton;
 
 /**
@@ -92,15 +98,54 @@ public final class SimpleLoginModule implements LoginModule {
 					.getInstance();
 			XmlDb userDb = instance.getUserDb();
 			candidate = User.withId(defaultCollection, userDb, name);
+		} catch (NullPointerException np) {
+			// candidate is null
+			System.out.println("User not in DB! Tried to login as " + name
+					+ ", " + getDate());
+			loginFailedMessage();
+			try {
+				return login();
+			} catch (LoginException e) {
+				e.printStackTrace();
+			}
 		} catch (Throwable x) {
 			x.printStackTrace();
 		}
 		if (validLogin(candidate, pass)) {
+
+			System.out.println("Freier Speicher: " //$NON-NLS-1$
+					+ (getTotalFreeMemory() / 1024) + " kb"); //$NON-NLS-1$
+
 			currentUser = candidate;
 			loggedIn = true;
-			System.out.println("Logged in: " + currentUser); //$NON-NLS-1$
+			System.out.println(getDate() + " Logged in: " + currentUser); //$NON-NLS-1$
+
+			System.out.println("Freier Speicher: " //$NON-NLS-1$
+					+ (getTotalFreeMemory() / 1024) + " kb"); //$NON-NLS-1$
+		} else {
+			System.out
+					.println("Incorrect password! Tried to login as " + name + ", " + getDate()); //$NON-NLS-1$
+
+			loginFailedMessage();
+
+			try {
+				return login();
+			} catch (LoginException e) {
+				e.printStackTrace();
+			}
 		}
 		return loggedIn;
+	}
+
+	private void loginFailedMessage() {
+		MessageDialog dialog = new MessageDialog(Display.getDefault()
+				.getActiveShell(), Messages.get().LoginToDrc, null,
+				Messages.get().LoginFailed,
+				// MessageDialog.NONE,
+				MessageDialog.ERROR,
+				new String[] { IDialogConstantsHelper.getYesLabel() }, 0);
+		dialog.create();
+		dialog.open();
 	}
 
 	private boolean validLogin(User candidate, final String pass) {
@@ -129,6 +174,7 @@ public final class SimpleLoginModule implements LoginModule {
 	 */
 	@Override
 	public boolean abort() throws LoginException {
+		System.out.println("login aborted");
 		loggedIn = false;
 		return true;
 	}
@@ -143,4 +189,19 @@ public final class SimpleLoginModule implements LoginModule {
 		loggedIn = false;
 		return true;
 	}
+
+	private String getDate() {
+		SimpleDateFormat dateformatter = new SimpleDateFormat(
+				"E yyyy.MM.dd 'at' hh:mm:ss a"); //$NON-NLS-1$
+		return dateformatter.format(Calendar.getInstance().getTime());
+	}
+
+	private long getTotalFreeMemory() {
+		long maxMemory = Runtime.getRuntime().maxMemory();
+		long allocatedMemory = Runtime.getRuntime().totalMemory();
+		long freeMemory = Runtime.getRuntime().freeMemory();
+		long totalFreeMemory = (freeMemory + (maxMemory - allocatedMemory));
+		return totalFreeMemory;
+	}
+
 }
