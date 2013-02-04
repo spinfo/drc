@@ -208,8 +208,10 @@ views.press.news.5 = <a href="%1s" target="_blank">Digitale Innovation für die 
 views.press.news.6 = <a href="%1s" target="_blank">La Crestomazia en la rait (La Quotidiana, 07.06.2011)</a>
 views.press.news.7 = <a href="%1s" target="_blank">La Crestomazia accessibla a mintgin (La Quotidiana, 07.06.2011)</a>
 views.press.news.8 = <a href="%1s" target="_blank">Romanische Sprachschätze per Mausklick (Bündner Tagblatt, 07.06.2011)</a>
-views.press.news.9 = <a href="%1s" target="_blank">Gemeinsam an der Überlieferung arbeiten (NZZ Nr. 175, 29.07.2011, S.10)</a>
-views.press.news.10 = <a href="%1s" target="_blank">Buna partecipaziun e blers contacts (La Quotidiana, 02.09.2011, S.11)</a>
+views.press.news.9 = <a href="%1s" target="_blank">La Crestomazia Retorumantscha illa rait (Engadiner Post, 23.07.2011, S.6)</a>
+views.press.news.10 = <a href="%1s" target="_blank">Gemeinsam an der Überlieferung arbeiten (NZZ Nr. 175, 29.07.2011, S.10)</a>
+views.press.news.11 = <a href="%1s" target="_blank">Buna partecipaziun e blers contacts (La Quotidiana, 02.09.2011, S.11)</a>
+views.press.news.12 = <a href="%1s" target="_blank">Sa laschar muventar - nossa Chrestomazia online! (La Quotidiana, 05.12.2012, S.13)</a>
 
 views.press.publ.1 = <a href="%1s" target="_blank">Digitale Rätoromanische Chrestomathie - Eine réécriture communautaire</a><br /> (Gastvortrag an der Universität Zürich, 09.12.2010)
 views.press.publ.2 = "Stai si, defenda, Romontsch, tiu vegl lungatg" - Digitalisierung als Mittel kultureller Selbstermächtigung kleinerer Sprachgemeinschaften<br /> (Vortrag im Rahmen der "Languagetalks 2011", LMU München, 16.-18. Februar 2011)

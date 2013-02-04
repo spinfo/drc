@@ -18,7 +18,7 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog -console -consolelog -debug"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx512m -Dosgi.noShutdown=true -Declipse.ignoreApp=true"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx1024m -Dosgi.noShutdown=true -Declipse.ignoreApp=true"/>
 <stringAttribute key="org.eclipse.rap.launch.browserMode" value="EXTERNAL"/>
 <stringAttribute key="org.eclipse.rap.launch.contextpath" value=""/>
 <stringAttribute key="org.eclipse.rap.launch.dataLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.rap.ui.launch/de.uni_koeln.ub.drc.rap"/>
